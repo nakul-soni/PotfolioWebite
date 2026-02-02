@@ -17,6 +17,8 @@ export function EventsSection() {
     const [activeEvent, setActiveEvent] = useState<typeof EVENTS_DATA[0] | null>(null);
 
     useEffect(() => {
+        const isMobile = window.innerWidth < 768
+
         const ctx = gsap.context(() => {
             const cards = gsap.utils.toArray(".event-card");
             const totalCards = cards.length;
@@ -29,7 +31,8 @@ export function EventsSection() {
             }
 
             const scrollAmount = getScrollAmount();
-            const scrollDuration = totalCards * 1000;
+            // Dramatically reduced scroll duration on mobile for one-scroll-per-card feel
+            const scrollDuration = isMobile ? totalCards * 200 : totalCards * 1000;
 
             // Set initial state for all cards
             gsap.set(cards, {
@@ -38,28 +41,30 @@ export function EventsSection() {
                 y: 20
             });
 
-            // Main timeline
+            // Main timeline - optimized scrub for mobile
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top top",
                     end: "+=" + scrollDuration,
                     pin: true,
-                    scrub: 1,
+                    scrub: isMobile ? 0.3 : 1, // Faster scrub on mobile for smoother feel
                     invalidateOnRefresh: true,
                     anticipatePin: 1
                 }
             });
 
-            // 1. Timeline line drawing
-            tl.to(".timeline-path-draw", {
-                strokeDashoffset: 0,
-                ease: "none",
-                duration: 10
-            }, 0);
+            // 1. Timeline line drawing - simplified on mobile
+            if (!isMobile) {
+                tl.to(".timeline-path-draw", {
+                    strokeDashoffset: 0,
+                    ease: "none",
+                    duration: 10
+                }, 0);
+            }
 
             // 2. Card animations
-            const cardAppearDuration = 1.2;
+            const cardAppearDuration = isMobile ? 0.8 : 1.2; // Faster on mobile
             const timeBetweenCards = 10 / totalCards;
 
             cards.forEach((card, index) => {
@@ -127,7 +132,7 @@ export function EventsSection() {
             <div className="w-full h-full flex items-center overflow-hidden">
                 <div
                     ref={wrapperRef}
-                    className="flex items-center gap-20 md:gap-32 px-8 md:px-16"
+                    className="flex items-center gap-20 md:gap-32 px-8 md:px-16 will-change-transform"
                     style={{ width: 'max-content' }}
                 >
                     {EVENTS_DATA.map((event, i) => (
