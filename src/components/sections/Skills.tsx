@@ -25,59 +25,66 @@ export function Skills() {
 
     useEffect(() => {
         const ctx = gsap.context(() => {
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    start: "top top",
-                    end: "+=500%", // Increased pin duration further for hold + exit
-                    scrub: 1,
-                    pin: true,
-                    pinSpacing: true,
-                    anticipatePin: 1
-                }
-            })
+            const mm = gsap.matchMedia()
 
-            // Initial cleanup - ensure everything is hidden/displaced before animation starts logic runs
-            // (GSAP fromTo handles this, but explicit ordering helps)
-
-            // 1. Base Layer: Cards rise from bottom
-            tl.fromTo(".skill-level-base .skill-card",
-                { y: 300, opacity: 0, scale: 0 },
-                { y: 0, opacity: 1, scale: 1, stagger: 0.1, duration: 1.5, ease: "power2.out" }
-            )
-
-                // 2. Core Layer: Cards drop from top
-                .fromTo(".skill-level-core .skill-card",
-                    { y: -400, opacity: 0, scale: 0.5 },
-                    { y: 0, opacity: 1, scale: 1, stagger: 0.1, duration: 1.5, ease: "bounce.out" },
-                    "-=0.8"
-                )
-
-                // 3. Framework Layer: Cards drop from top
-                .fromTo(".skill-level-framework .skill-card",
-                    { y: -400, opacity: 0, scale: 0.5 },
-                    { y: 0, opacity: 1, scale: 1, stagger: 0.2, duration: 1.5, ease: "bounce.out" },
-                    "-=0.8"
-                )
-
-                // 4. Crown: Descends
-                .fromTo(".skill-level-crown .skill-card",
-                    { y: -100, opacity: 0, scale: 0 },
-                    { y: 0, opacity: 1, scale: 1, duration: 1.5, ease: "elastic.out(1, 0.3)" },
-                    "-=1.4"
-                )
-                // Hold Phase: Keep the pyramid visible for a while
-                .to({}, { duration: 2 })
-
-                // Exit Phase: Fade out/Fly away
-                .to(pyramidRef.current, {
-                    opacity: 0,
-                    scale: 1.2, // Slight zoom out/fly towards camera effect
-                    filter: "blur(10px)", // Add blur for smooth exit
-                    duration: 1.5
+            // Desktop: Scroll-triggered pyramid animation
+            mm.add("(min-width: 768px)", () => {
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        start: "top top",
+                        end: "+=500%", // Increased pin duration further for hold + exit
+                        scrub: 1,
+                        pin: true,
+                        pinSpacing: true,
+                        anticipatePin: 1
+                    }
                 })
 
-            // Post-assembly breathing animation - subtle pulse on the icon itself
+                // Initial cleanup - ensure everything is hidden/displaced before animation starts logic runs
+                // (GSAP fromTo handles this, but explicit ordering helps)
+
+                // 1. Base Layer: Cards rise from bottom
+                tl.fromTo(".skill-level-base .skill-card",
+                    { y: 300, opacity: 0, scale: 0 },
+                    { y: 0, opacity: 1, scale: 1, stagger: 0.1, duration: 1.5, ease: "power2.out" }
+                )
+
+                    // 2. Core Layer: Cards drop from top
+                    .fromTo(".skill-level-core .skill-card",
+                        { y: -400, opacity: 0, scale: 0.5 },
+                        { y: 0, opacity: 1, scale: 1, stagger: 0.1, duration: 1.5, ease: "bounce.out" },
+                        "-=0.8"
+                    )
+
+                    // 3. Framework Layer: Cards drop from top
+                    .fromTo(".skill-level-framework .skill-card",
+                        { y: -400, opacity: 0, scale: 0.5 },
+                        { y: 0, opacity: 1, scale: 1, stagger: 0.2, duration: 1.5, ease: "bounce.out" },
+                        "-=0.8"
+                    )
+
+                    // 4. Crown: Descends
+                    .fromTo(".skill-level-crown .skill-card",
+                        { y: -100, opacity: 0, scale: 0 },
+                        { y: 0, opacity: 1, scale: 1, duration: 1.5, ease: "elastic.out(1, 0.3)" },
+                        "-=1.4"
+                    )
+                    // Hold Phase: Keep the pyramid visible for a while
+                    .to({}, { duration: 2 })
+
+                    // Exit Phase: Fade out/Fly away
+                    .to(pyramidRef.current, {
+                        opacity: 0,
+                        scale: 1.2, // Slight zoom out/fly towards camera effect
+                        filter: "blur(10px)", // Add blur for smooth exit
+                        duration: 1.5
+                    })
+            })
+
+            // Mobile: No animations - pyramid displays as-is
+
+            // Post-assembly breathing animation - subtle pulse on the icon itself (Always active)
             gsap.to(".skill-level-crown .skill-card", {
                 filter: "drop-shadow(0 0 20px rgba(59, 130, 246, 0.6))",
                 scale: 1.1,
@@ -92,11 +99,8 @@ export function Skills() {
         return () => ctx.revert()
     }, [])
 
-    // Mobile Touch Rotation Logic - Disabled on mobile to prevent overlapping
+    // Mobile Touch Rotation Logic
     const handleTouchMove = (e: React.TouchEvent) => {
-        // Disable on mobile devices (screen width < 768px)
-        if (window.innerWidth < 768) return
-
         const touch = e.touches[0]
         // Simple mapping of screen position to rotation
         const rotY = (touch.clientX / window.innerWidth - 0.5) * 180
@@ -109,11 +113,8 @@ export function Skills() {
         })
     }
 
-    // Mouse Move Tilt - Disabled on mobile to prevent overlapping
+    // Mouse Move Tilt
     const handleMouseMove = (e: React.MouseEvent) => {
-        // Disable on mobile devices (screen width < 768px)
-        if (window.innerWidth < 768) return
-
         const rotY = (e.clientX / window.innerWidth - 0.5) * 30
         const rotX = (e.clientY / window.innerHeight - 0.5) * 30
 
@@ -125,8 +126,8 @@ export function Skills() {
     }
 
     const IconCard = ({ Icon, name, level }: { Icon: any, name: string, level: string }) => (
-        <div className={`skill-card relative group w-12 h-12 md:w-24 md:h-24 flex items-center justify-center transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_15px_rgba(59,130,246,0.6)] cursor-pointer preserve-3d`}>
-            <Icon className="w-8 h-8 md:w-16 md:h-16 text-foreground group-hover:text-accent-primary transition-colors filter drop-shadow-md" />
+        <div className={`skill-card relative group w-16 h-16 md:w-24 md:h-24 flex items-center justify-center transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_15px_rgba(59,130,246,0.6)] cursor-pointer preserve-3d`}>
+            <Icon className="w-10 h-10 md:w-16 md:h-16 text-foreground group-hover:text-accent-primary transition-colors filter drop-shadow-md" />
 
             {/* Tooltip */}
             <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-border">
@@ -157,22 +158,22 @@ export function Skills() {
             >
 
                 {/* Level 1: Crown */}
-                <div className="skill-level-crown flex justify-center mb-4 md:mb-8 transform-style-3d translate-z-20">
+                <div className="skill-level-crown flex justify-center mb-8 transform-style-3d translate-z-20">
                     <IconCard Icon={crownIcon} name="GSAP ScrollTrigger" level="Crown" />
                 </div>
 
                 {/* Level 2: Frameworks */}
-                <div className="skill-level-framework flex justify-center gap-3 md:gap-6 mb-4 md:mb-8 transform-style-3d translate-z-10">
+                <div className="skill-level-framework flex justify-center gap-6 mb-8 transform-style-3d translate-z-10">
                     {frameworkIcons.map((Icon, i) => <IconCard key={i} Icon={Icon} name="Framework" level="Framework" />)}
                 </div>
 
                 {/* Level 3: Core */}
-                <div className="skill-level-core flex justify-center gap-3 md:gap-6 mb-4 md:mb-8 transform-style-3d">
+                <div className="skill-level-core flex justify-center gap-6 mb-8 transform-style-3d">
                     {coreIcons.map((Icon, i) => <IconCard key={i} Icon={Icon} name="Core" level="Core" />)}
                 </div>
 
                 {/* Level 4: Base */}
-                <div className="skill-level-base flex justify-center gap-2 md:gap-4 flex-wrap max-w-2xl transform-style-3d translate-z-n10">
+                <div className="skill-level-base flex justify-center gap-4 flex-wrap max-w-2xl transform-style-3d translate-z-n10">
                     {baseIcons.map((Icon, i) => <IconCard key={i} Icon={Icon} name="Base" level="Base" />)}
                 </div>
 

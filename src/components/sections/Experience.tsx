@@ -10,22 +10,26 @@ export function Experience() {
 
     useEffect(() => {
         const ctx = gsap.context(() => {
-            // Desktop Vertical Line Draw
-            gsap.fromTo(".timeline-line",
-                { height: "0%" },
-                {
-                    height: "100%",
-                    ease: "none",
-                    scrollTrigger: {
-                        trigger: ".timeline-container",
-                        start: "top 60%",
-                        end: "bottom 80%",
-                        scrub: 1
-                    }
-                }
-            )
+            const mm = gsap.matchMedia()
 
-            // Items Stagger
+            // Desktop: Vertical Line Draw
+            mm.add("(min-width: 768px)", () => {
+                gsap.fromTo(".timeline-line",
+                    { height: "0%" },
+                    {
+                        height: "100%",
+                        ease: "none",
+                        scrollTrigger: {
+                            trigger: ".timeline-container",
+                            start: "top 60%",
+                            end: "bottom 80%",
+                            scrub: 1
+                        }
+                    }
+                )
+            })
+
+            // Items Stagger (Always active)
             const items = gsap.utils.toArray(".timeline-item")
             items.forEach((item: any) => {
                 gsap.from(item, {

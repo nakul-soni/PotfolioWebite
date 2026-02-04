@@ -8,12 +8,6 @@ export function CustomCursor() {
     const followerRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        // Detect touch devices - don't render custom cursor on mobile
-        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
-        if (isTouchDevice) {
-            return // Exit early on touch devices
-        }
-
         // Hide default cursor
         document.body.style.cursor = 'none'
 
@@ -121,12 +115,6 @@ export function CustomCursor() {
             document.body.style.cursor = 'auto'
         }
     }, [])
-
-    // Don't render custom cursor on touch devices
-    const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0)
-    if (isTouchDevice) {
-        return null
-    }
 
     return (
         <>

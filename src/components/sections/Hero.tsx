@@ -15,7 +15,7 @@ export function Hero() {
         const ctx = gsap.context(() => {
             const tl = gsap.timeline()
 
-            // Entrance Animations
+            // Entrance Animations (Always active)
             tl.from(".hero-text-line", {
                 y: 100,
                 opacity: 0,
@@ -37,7 +37,7 @@ export function Hero() {
                     ease: "power2.out"
                 }, "-=0.5")
 
-            // Continuous Bounce Animation for Scroll Indicator
+            // Continuous Bounce Animation for Scroll Indicator (Always active)
             gsap.to(".scroll-indicator", {
                 y: 10,
                 duration: 1.5,
@@ -46,7 +46,11 @@ export function Hero() {
                 ease: "sine.inOut"
             })
 
-            // Parallax Scroll Effect
+        }, containerRef)
+
+        // Parallax Scroll Effect - Desktop only
+        const mm = gsap.matchMedia()
+        mm.add("(min-width: 768px)", () => {
             gsap.to(contentRef.current, {
                 yPercent: 50,
                 opacity: 0,
@@ -58,10 +62,12 @@ export function Hero() {
                     scrub: true
                 }
             })
+        })
 
-        }, containerRef)
-
-        return () => ctx.revert()
+        return () => {
+            ctx.revert()
+            mm.revert()
+        }
     }, [])
 
     const handleScrollClick = () => {

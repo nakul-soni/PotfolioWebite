@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -20,11 +20,18 @@ export const ScrollStack = ({
     const wrapperRef = useRef<HTMLDivElement>(null);
     const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
+    // State for mobile swipe navigation
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isMobile, setIsMobile] = useState(false);
+    const touchStartX = useRef(0);
+    const touchEndX = useRef(0);
+
     useEffect(() => {
         const ctx = gsap.matchMedia();
 
         // Desktop Animation (Scroll to Stack)
         ctx.add("(min-width: 768px)", () => {
+            setIsMobile(false);
             if (!containerRef.current || !wrapperRef.current) return;
 
             const totalCards = items.length;
@@ -76,6 +83,7 @@ export const ScrollStack = ({
 
         // Mobile Cleanup (Reset styles)
         ctx.add("(max-width: 767px)", () => {
+            setIsMobile(true);
             const cards = cardsRef.current.filter(Boolean);
             gsap.set(cards, { clearProps: "all" });
             if (wrapperRef.current) gsap.set(wrapperRef.current, { clearProps: "all" });
@@ -85,22 +93,59 @@ export const ScrollStack = ({
         return () => ctx.revert();
     }, [items]);
 
+    // Touch swipe handlers for mobile
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        touchEndX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = () => {
+        const swipeThreshold = 50;
+        const diff = touchStartX.current - touchEndX.current;
+
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0 && currentIndex < items.length - 1) {
+                // Swipe left - next service
+                setCurrentIndex(prev => prev + 1);
+            } else if (diff < 0 && currentIndex > 0) {
+                // Swipe right - previous service
+                setCurrentIndex(prev => prev - 1);
+            }
+        }
+    };
+
     return (
-        <div ref={containerRef} className="relative w-full h-auto min-h-screen md:h-screen flex items-center justify-center overflow-hidden bg-transparent">
+        <div
+            ref={containerRef}
+            className="relative w-full h-auto min-h-screen md:h-screen flex items-center justify-center overflow-hidden bg-transparent"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+        >
 
             {/* 
               Responsive Wrapper:
               Desktop: Relative container for absolute cards (handled by GSAP)
-              Mobile: Horizontal scroll container (Flex + Snap)
+              Mobile: Horizontal swipe carousel
+            */}
+            {/* 
+              Responsive Wrapper:
+              Desktop: Relative container for absolute cards (handled by GSAP)
+              Mobile: Horizontal swipe carousel with translate
             */}
             <div
                 ref={wrapperRef}
                 className="
                     w-full max-w-2xl 
                     md:relative md:h-[90vh] md:aspect-video md:flex md:items-center md:justify-center
-                    flex flex-row overflow-x-auto snap-x snap-mandatory gap-4 px-4 py-8
-                    h-auto aspect-auto
+                    flex flex-row h-auto aspect-auto transition-transform duration-500 ease-out
                 "
+                style={{
+                    transform: isMobile ? `translateX(-${currentIndex * 100}%)` : 'none'
+                }}
             >
                 {items.map((item, index) => {
                     const reverseIndex = items.length - 1 - index;
@@ -109,17 +154,18 @@ export const ScrollStack = ({
                         <div
                             key={item.id}
                             ref={(el: any) => (cardsRef.current[index] = el)}
-                            className="
+                            className={`
                                 md:absolute md:top-0 md:left-0 md:w-full md:h-full 
-                                relative w-[85vw] flex-shrink-0 h-[70vh] snap-center
-                            "
+                                relative w-full flex-shrink-0 h-auto
+                                opacity-100 scale-100 md:opacity-100 md:scale-100
+                            `}
                             style={{
                                 // Initially set zIndex for Desktop logic (GSAP matchMedia will override if needed, or CSS handles it)
                                 // We use style for zIndex to help the initial render
                                 zIndex: reverseIndex,
                             }}
                         >
-                            <div className="w-full h-full flex items-center justify-center">
+                            <div className="w-full h-full flex items-center justify-center p-4">
                                 {item.children}
                             </div>
                         </div>
@@ -127,11 +173,35 @@ export const ScrollStack = ({
                 })}
             </div>
 
+            {/* Swipe Indicators - Mobile Only */}
+            <>
+                {/* Left Arrow */}
+                {currentIndex > 0 && (
+                    <div className="md:hidden absolute left-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
+                        <div className="flex items-center gap-2 text-muted-foreground/60">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                            <span className="text-xs font-medium">Swipe</span>
+                        </div>
+                    </div>
+                )}
+
+                {/* Right Arrow */}
+                {currentIndex < items.length - 1 && (
+                    <div className="md:hidden absolute right-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
+                        <div className="flex items-center gap-2 text-muted-foreground/60">
+                            <span className="text-xs font-medium">Swipe</span>
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+                )}
+            </>
+
             <div className="absolute bottom-10 animate-bounce text-muted-foreground text-sm uppercase tracking-widest hidden md:block">
                 Scroll to Explore
-            </div>
-            <div className="absolute bottom-10 animate-pulse text-muted-foreground text-sm uppercase tracking-widest md:hidden">
-                Swipe &rarr;
             </div>
         </div>
     );

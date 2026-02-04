@@ -16,18 +16,22 @@ export function About() {
 
     useEffect(() => {
         const ctx = gsap.context(() => {
-            // Photo Parallax
-            gsap.to(".about-photo", {
-                y: -50,
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    start: "top center",
-                    end: "bottom top",
-                    scrub: 1
-                }
+            const mm = gsap.matchMedia()
+
+            // Photo Parallax - Desktop only
+            mm.add("(min-width: 768px)", () => {
+                gsap.to(".about-photo", {
+                    y: -50,
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        start: "top center",
+                        end: "bottom top",
+                        scrub: 1
+                    }
+                })
             })
 
-            // Stats Reveal & Counter
+            // Stats Reveal & Counter (Always active)
             const stats = statsRef.current?.children
             if (stats) {
                 gsap.from(stats, {
@@ -42,7 +46,7 @@ export function About() {
                 })
             }
 
-            // Typewriter Trigger
+            // Typewriter Trigger (Always active)
             const textProgress = { value: 0 }
             gsap.to(textProgress, {
                 value: fullText.length,

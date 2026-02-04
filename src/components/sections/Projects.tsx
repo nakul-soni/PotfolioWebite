@@ -16,41 +16,53 @@ export function Projects() {
     const touchStartX = useRef(0)
     const touchEndX = useRef(0)
 
-    // Detect mobile on mount
     useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth < 768)
-        }
-        checkMobile()
-        window.addEventListener('resize', checkMobile)
-        return () => window.removeEventListener('resize', checkMobile)
-    }, [])
-
-    useEffect(() => {
-        // Skip GSAP scroll on mobile
-        if (isMobile) return
-
         const ctx = gsap.context(() => {
-            const sections = gsap.utils.toArray(".project-card")
+            const mm = gsap.matchMedia()
 
-            gsap.to(sections, {
-                xPercent: -100 * (sections.length - 1),
-                ease: "none",
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    pin: true,
-                    pinSpacing: true,
-                    anticipatePin: 1,
-                    scrub: 0.5,
-                    snap: 1 / (sections.length - 1),
-                    // base vertical scrolling on how many cards * width
-                    end: () => "+=" + (containerRef.current?.offsetWidth || 0) * (sections.length - 1)
-                }
+            // Desktop: Horizontal scroll animation
+            mm.add("(min-width: 768px)", () => {
+                const sections = gsap.utils.toArray(".project-card")
+
+                gsap.to(sections, {
+                    xPercent: -100 * (sections.length - 1),
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        pin: true,
+                        pinSpacing: true,
+                        anticipatePin: 1,
+                        scrub: 0.5,
+                        snap: 1 / (sections.length - 1),
+                        // base vertical scrolling on how many cards * width
+                        end: () => "+=" + (containerRef.current?.offsetWidth || 0) * (sections.length - 1)
+                    }
+                })
             })
+
+            // Mobile: Simple fade-in animation
+            mm.add("(max-width: 767px)", () => {
+                setIsMobile(true)
+                gsap.from(".project-card", {
+                    opacity: 0,
+                    y: 50,
+                    duration: 0.8,
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        start: "top 80%",
+                        toggleActions: "play none none reverse"
+                    }
+                })
+            })
+
+            mm.add("(min-width: 768px)", () => {
+                setIsMobile(false)
+            });
+
         }, containerRef)
 
         return () => ctx.revert()
-    }, [isMobile])
+    }, [])
 
     useEffect(() => {
         if (selectedImage) {
@@ -76,8 +88,6 @@ export function Projects() {
     }
 
     const handleTouchEnd = () => {
-        if (!isMobile) return
-
         const swipeThreshold = 50
         const diff = touchStartX.current - touchEndX.current
 
@@ -96,7 +106,7 @@ export function Projects() {
         <section
             id="projects"
             ref={containerRef}
-            className="h-screen w-full bg-transparent overflow-hidden relative"
+            className="h-screen w-full bg-transparent overflow-hidden relative flex flex-row md:block"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -107,11 +117,20 @@ export function Projects() {
                 </h2>
             </div>
 
-            <div ref={wrapperRef} className={isMobile ? "h-full w-full" : "flex h-full w-[300%]"}>
+            <div
+                ref={wrapperRef}
+                className="h-full w-full flex md:flex md:h-full md:w-[300%] transition-transform duration-500 ease-out"
+                style={{
+                    transform: isMobile ? `translateX(-${currentIndex * 100}%)` : 'none'
+                }}
+            >
                 {PROJECTS.map((project, i) => (
                     <div
                         key={i}
-                        className={`project-card w-screen h-full flex items-center justify-center p-4 pt-20 md:p-20 border-r border-border/50 bg-background/50 backdrop-blur-sm transition-opacity duration-500 ${isMobile ? (i === currentIndex ? 'opacity-100 absolute inset-0' : 'opacity-0 absolute inset-0 pointer-events-none') : ''
+                        className={`project-card w-full md:w-screen h-full flex-shrink-0 flex items-center justify-center p-4 pt-20 md:p-20 border-r border-border/50 bg-background/50 backdrop-blur-sm transition-opacity duration-500 md:opacity-100 md:relative ${
+                            // On mobile, all cards are "visible" in the flow, but only one is in view due to overflow hidden + translate
+                            // On desktop, we keep the original logic if needed, but the wrapper is what matters for mobile
+                            'opacity-100 relative'
                             }`}
                     >
 
@@ -201,33 +220,31 @@ export function Projects() {
             </div>
 
             {/* Swipe Indicators - Mobile Only */}
-            {isMobile && (
-                <>
-                    {/* Left Arrow */}
-                    {currentIndex > 0 && (
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
-                            <div className="flex items-center gap-2 text-muted-foreground/60">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                </svg>
-                                <span className="text-xs font-medium">Swipe</span>
-                            </div>
+            <>
+                {/* Left Arrow */}
+                {currentIndex > 0 && (
+                    <div className="md:hidden absolute left-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
+                        <div className="flex items-center gap-2 text-muted-foreground/60">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                            <span className="text-xs font-medium">Swipe</span>
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    {/* Right Arrow */}
-                    {currentIndex < PROJECTS.length - 1 && (
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
-                            <div className="flex items-center gap-2 text-muted-foreground/60">
-                                <span className="text-xs font-medium">Swipe</span>
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </div>
+                {/* Right Arrow */}
+                {currentIndex < PROJECTS.length - 1 && (
+                    <div className="md:hidden absolute right-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
+                        <div className="flex items-center gap-2 text-muted-foreground/60">
+                            <span className="text-xs font-medium">Swipe</span>
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
                         </div>
-                    )}
-                </>
-            )}
+                    </div>
+                )}
+            </>
 
             {/* Lightbox Modal */}
             {selectedImage && (

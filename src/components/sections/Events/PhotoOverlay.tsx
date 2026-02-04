@@ -84,8 +84,11 @@ export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
             onClick={handleClose}
         >
             {/* Close Button */}
-            <button onClick={handleClose} className="absolute top-4 right-4 md:top-8 md:right-8 text-white/50 hover:text-white transition-colors p-2 z-50">
-                <X className="w-8 h-8" />
+            <button
+                onClick={handleClose}
+                className="absolute top-20 right-4 md:top-8 md:right-8 z-50 p-2 rounded-full bg-background/20 backdrop-blur-md hover:bg-background/40 transition-colors text-white border border-white/10 group"
+            >
+                <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
             </button>
 
             {/* Main Content Container - Like a Post */}
