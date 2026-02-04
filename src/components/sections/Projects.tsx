@@ -86,14 +86,17 @@ export function Projects() {
 
     // Touch swipe handlers for mobile
     const handleTouchStart = (e: React.TouchEvent) => {
+        if (selectedImage) return // Disable main swipe
         touchStartX.current = e.touches[0].clientX
     }
 
     const handleTouchMove = (e: React.TouchEvent) => {
+        if (selectedImage) return // Disable main swipe
         touchEndX.current = e.touches[0].clientX
     }
 
     const handleTouchEnd = () => {
+        if (selectedImage) return // Disable main swipe
         const swipeThreshold = 50
         const diff = touchStartX.current - touchEndX.current
 
@@ -277,7 +280,7 @@ export function Projects() {
                     <div
                         className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 md:p-10 cursor-zoom-out animate-lightbox"
                         onClick={() => setSelectedImage(null)}
-                        onTouchStart={(e) => { lightboxTouchStartX.current = e.touches[0].clientX }}
+                        onTouchStart={(e) => { e.stopPropagation(); lightboxTouchStartX.current = e.touches[0].clientX }}
                         onTouchMove={(e) => { lightboxTouchEndX.current = e.touches[0].clientX }}
                         onTouchEnd={handleLightboxSwipe}
                     >

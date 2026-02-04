@@ -14,6 +14,13 @@ export function CustomCursor() {
         const updateCursor = () => {
             const isMobile = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768
             document.body.style.cursor = isMobile ? 'auto' : 'none'
+
+            // Explicitly hide elements to prevent GSAP from overriding with display: block
+            if (cursor && follower) {
+                const display = isMobile ? 'none' : 'block'
+                cursor.style.display = display
+                follower.style.display = display
+            }
         }
 
         updateCursor()
