@@ -101,15 +101,17 @@ export function Skills() {
 
     // Mobile Touch Rotation Logic
     const handleTouchMove = (e: React.TouchEvent) => {
+        if (window.innerWidth < 768) return // Disable tilt on mobile for performance
+
         const touch = e.touches[0]
-        // Simple mapping of screen position to rotation
         const rotY = (touch.clientX / window.innerWidth - 0.5) * 180
-        const rotX = (touch.clientY / window.innerHeight - 0.5) * 45 // Limit X tilt
+        const rotX = (touch.clientY / window.innerHeight - 0.5) * 45
 
         gsap.to(pyramidRef.current, {
             rotationY: rotY,
-            rotationX: -rotX, // Invert X for natural feel
-            duration: 0.5
+            rotationX: -rotX,
+            duration: 0.5,
+            overwrite: true
         })
     }
 
@@ -121,7 +123,8 @@ export function Skills() {
         gsap.to(pyramidRef.current, {
             rotationY: rotY,
             rotationX: -rotX,
-            duration: 1
+            duration: 1,
+            overwrite: true
         })
     }
 
@@ -152,7 +155,7 @@ export function Skills() {
             {/* 3D Pyramid Container */}
             <div
                 ref={pyramidRef}
-                className="relative transform-style-3d transition-transform ease-out-expo"
+                className="relative transform-style-3d transition-transform ease-out-expo will-change-transform"
                 onTouchMove={handleTouchMove}
                 onMouseMove={handleMouseMove}
             >

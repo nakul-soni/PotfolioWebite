@@ -99,7 +99,7 @@ export function Hero() {
 
             <div
                 onClick={handleScrollClick}
-                className="scroll-indicator absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer hover:text-foreground transition-colors z-20"
+                className="scroll-indicator absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer hover:text-foreground transition-colors z-20 will-change-transform"
             >
                 <span className="text-xs uppercase tracking-widest text-muted-foreground">Scroll</span>
                 <ArrowDown className="w-4 h-4 text-accent-primary" />

@@ -125,7 +125,7 @@ export function Projects() {
 
             <div
                 ref={wrapperRef}
-                className="h-full w-full flex md:flex md:h-full md:w-[300%] transition-transform duration-500 ease-out"
+                className="h-full w-full flex md:flex md:h-full md:w-[300%] transition-transform duration-500 ease-out will-change-transform"
                 style={{
                     transform: isMobile ? `translateX(-${currentIndex * 100}%)` : 'none'
                 }}

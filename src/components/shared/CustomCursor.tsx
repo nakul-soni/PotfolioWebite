@@ -8,17 +8,16 @@ export function CustomCursor() {
     const followerRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        // Hide default cursor
-        // Check if device is mobile or touch
-        const isMobile = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768
-
-        if (isMobile) return
-
-        // Hide default cursor
-        document.body.style.cursor = 'none'
-
         const cursor = cursorRef.current
         const follower = followerRef.current
+
+        const updateCursor = () => {
+            const isMobile = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768
+            document.body.style.cursor = isMobile ? 'auto' : 'none'
+        }
+
+        updateCursor()
+        window.addEventListener('resize', updateCursor)
 
         if (!cursor || !follower) return
 
@@ -114,6 +113,7 @@ export function CustomCursor() {
         document.body.addEventListener('mouseleave', () => gsap.to([cursor, follower], { opacity: 0 }))
 
         return () => {
+            window.removeEventListener('resize', updateCursor)
             window.removeEventListener("mousemove", onMouseMove)
             window.removeEventListener('mouseover', onMouseOver)
             window.removeEventListener('mouseout', onMouseOut)

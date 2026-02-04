@@ -27,7 +27,7 @@ export function EventCard({ event, onCardClick }: EventCardProps) {
                 {/* Using div placeholder for image interactions */}
                 <div
                     className="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1"
-                    style={{ backgroundImage: `url(${event.heroPhoto})` }}
+                    style={{ backgroundImage: `url("${event.heroPhoto}")` }}
                 />
 
                 {/* Hover Reveal: Photo Counter */}

@@ -19,7 +19,8 @@ export function ParticlesBackground() {
 
         // Star properties
         const stars: Star[] = []
-        const starCount = 400
+        // Optimize star count: 400 for desktop, 100 for mobile
+        const starCount = width < 768 ? 100 : 400
         const speed = 0.5
 
         let mouseX = 0

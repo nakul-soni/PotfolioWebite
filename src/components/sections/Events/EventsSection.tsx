@@ -177,7 +177,7 @@ export function EventsSection() {
             <div className="w-full h-full flex items-center overflow-hidden">
                 <div
                     ref={wrapperRef}
-                    className="flex items-center gap-8 md:gap-32 px-8 md:px-16 transition-transform duration-500 ease-out"
+                    className="flex items-center gap-8 md:gap-32 px-8 md:px-16 transition-transform duration-500 ease-out will-change-transform"
                     style={{
                         width: 'max-content',
                         transform: `translateX(-${currentIndex * (isMobile ? (320 + 32) : 0)}px)`
