@@ -9,6 +9,12 @@ export function CustomCursor() {
 
     useEffect(() => {
         // Hide default cursor
+        // Check if device is mobile or touch
+        const isMobile = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768
+
+        if (isMobile) return
+
+        // Hide default cursor
         document.body.style.cursor = 'none'
 
         const cursor = cursorRef.current
@@ -120,7 +126,7 @@ export function CustomCursor() {
         <>
             <div
                 ref={cursorRef}
-                className="fixed top-0 left-0 pointer-events-none z-[9999] -translate-x-1.5 -translate-y-0.5 drop-shadow-md will-change-transform"
+                className="hidden md:block fixed top-0 left-0 pointer-events-none z-[9999] -translate-x-1.5 -translate-y-0.5 drop-shadow-md will-change-transform"
             >
                 <svg
                     width="24"
@@ -141,7 +147,7 @@ export function CustomCursor() {
             </div>
             <div
                 ref={followerRef}
-                className="fixed top-0 left-0 w-8 h-8 border border-accent-primary/50 rounded-full pointer-events-none z-[9998] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 ease-out"
+                className="hidden md:block fixed top-0 left-0 w-8 h-8 border border-accent-primary/50 rounded-full pointer-events-none z-[9998] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 ease-out"
             />
         </>
     )
