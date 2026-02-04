@@ -10,11 +10,17 @@ import Image from "next/image"
 export function Projects() {
     const containerRef = useRef<HTMLDivElement>(null)
     const wrapperRef = useRef<HTMLDivElement>(null)
-    const [selectedImage, setSelectedImage] = useState<{ src: string; orientation?: string } | null>(null)
+    const [selectedImage, setSelectedImage] = useState<{ projectIndex: number; imageIndex: number } | null>(null)
     const [currentIndex, setCurrentIndex] = useState(0)
     const [isMobile, setIsMobile] = useState(false)
+
+    // Main Carousel Touch Refs
     const touchStartX = useRef(0)
     const touchEndX = useRef(0)
+
+    // Lightbox Touch Refs
+    const lightboxTouchStartX = useRef(0)
+    const lightboxTouchEndX = useRef(0)
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -138,7 +144,7 @@ export function Projects() {
 
                             {/* Image Card */}
                             <div className="relative group perspective-1000">
-                                <div className="w-full aspect-video bg-muted rounded-2xl overflow-hidden shadow-2xl transition-transform duration-500 border border-border">
+                                <div className="w-full aspect-video bg-transparent rounded-2xl overflow-visible transition-transform duration-500 border-none">
                                     {/* Collage Images */}
                                     <div className="relative w-full h-full perspective-1000 flex items-center justify-center">
                                         {project.images.map((img, idx) => {
@@ -169,7 +175,7 @@ export function Projects() {
                                             return (
                                                 <div
                                                     key={idx}
-                                                    onClick={() => setSelectedImage({ src: img, orientation: (project as any).orientation })}
+                                                    onClick={() => setSelectedImage({ projectIndex: i, imageIndex: idx })}
                                                     className={`absolute top-1/2 -translate-y-1/2 transition-all duration-500 ease-out cursor-zoom-in rounded-xl overflow-hidden shadow-2xl border border-border/50 bg-black/50 ${positionClass} ${isPortrait ? "w-[25%] aspect-[9/16]" : "w-[80%] aspect-video"}`}
                                                 >
                                                     <Image
@@ -247,24 +253,87 @@ export function Projects() {
             </>
 
             {/* Lightbox Modal */}
-            {selectedImage && (
-                <div
-                    className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 md:p-10 cursor-zoom-out animate-lightbox"
-                    onClick={() => setSelectedImage(null)}
-                >
-                    <div className={`relative w-full shadow-2xl rounded-lg overflow-hidden border border-border/20 bg-black ${selectedImage.orientation === "portrait" ? "max-w-sm aspect-[9/16]" : "max-w-5xl aspect-video"}`}>
-                        <Image
-                            src={selectedImage.src}
-                            alt="Project Preview"
-                            fill
-                            className="object-cover"
-                        />
+            {/* Lightbox Modal */}
+            {selectedImage && (() => {
+                const project = PROJECTS[selectedImage.projectIndex];
+                const images = project.images;
+                const currentImg = images[selectedImage.imageIndex];
+                const orientation = (project as any).orientation;
+                const hasNext = selectedImage.imageIndex < images.length - 1;
+                const hasPrev = selectedImage.imageIndex > 0;
+
+                const handleLightboxSwipe = () => {
+                    const diff = lightboxTouchStartX.current - lightboxTouchEndX.current;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0 && hasNext) {
+                            setSelectedImage(prev => prev ? { ...prev, imageIndex: prev.imageIndex + 1 } : null);
+                        } else if (diff < 0 && hasPrev) {
+                            setSelectedImage(prev => prev ? { ...prev, imageIndex: prev.imageIndex - 1 } : null);
+                        }
+                    }
+                };
+
+                return (
+                    <div
+                        className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 md:p-10 cursor-zoom-out animate-lightbox"
+                        onClick={() => setSelectedImage(null)}
+                        onTouchStart={(e) => { lightboxTouchStartX.current = e.touches[0].clientX }}
+                        onTouchMove={(e) => { lightboxTouchEndX.current = e.touches[0].clientX }}
+                        onTouchEnd={handleLightboxSwipe}
+                    >
+                        {/* Navigation Buttons (Desktop/Tablet) */}
+                        <button
+                            className={`hidden md:block absolute left-8 text-white/50 hover:text-white transition-all p-4 ${!hasPrev ? 'opacity-0 pointer-events-none' : ''}`}
+                            onClick={(e) => { e.stopPropagation(); setSelectedImage(prev => prev ? { ...prev, imageIndex: prev.imageIndex - 1 } : null) }}
+                        >
+                            <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+
+                        <button
+                            className={`hidden md:block absolute right-8 text-white/50 hover:text-white transition-all p-4 ${!hasNext ? 'opacity-0 pointer-events-none' : ''}`}
+                            onClick={(e) => { e.stopPropagation(); setSelectedImage(prev => prev ? { ...prev, imageIndex: prev.imageIndex + 1 } : null) }}
+                        >
+                            <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                        </button>
+
+                        {/* Image Counter */}
+                        <div className="absolute top-8 left-8 text-white/70 font-mono">
+                            {selectedImage.imageIndex + 1} / {images.length}
+                        </div>
+
+                        <div
+                            className={`relative w-full shadow-2xl rounded-lg overflow-hidden border border-border/20 bg-black ${orientation === "portrait" ? "max-w-sm aspect-[9/16]" : "max-w-5xl aspect-video"}`}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <Image
+                                src={currentImg}
+                                alt={`Project View ${selectedImage.imageIndex + 1}`}
+                                fill
+                                className="object-contain"
+                            />
+
+                            {/* Mobile Swipe Hints */}
+                            {hasPrev && (
+                                <div className="md:hidden absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 p-2 rounded-full text-white/70 animate-pulse pointer-events-none">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                                </div>
+                            )}
+                            {hasNext && (
+                                <div className="md:hidden absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 p-2 rounded-full text-white/70 animate-pulse pointer-events-none">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                                </div>
+                            )}
+                        </div>
+
+                        <button
+                            className="absolute top-8 right-8 text-white hover:text-accent-primary transition-colors p-2"
+                            onClick={() => setSelectedImage(null)}
+                        >
+                            <span className="text-4xl">&times;</span>
+                        </button>
                     </div>
-                    <button className="absolute top-8 right-8 text-white hover:text-accent-primary transition-colors">
-                        <span className="text-4xl">&times;</span>
-                    </button>
-                </div>
-            )}
+                );
+            })()}
 
         </section>
     )
