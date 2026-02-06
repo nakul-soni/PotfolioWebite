@@ -23,6 +23,10 @@ export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
     useEffect(() => {
         if (isOpen && event) {
             setCurrentIndex(0);
+
+            // Save current scroll position
+            const scrollY = window.scrollY
+
             // Animation In
             gsap.fromTo(overlayRef.current,
                 { opacity: 0 },
@@ -32,12 +36,30 @@ export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
                 { scale: 0.95, opacity: 0, y: 20 },
                 { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.2)", delay: 0.1 }
             );
+
             // Lock body scroll
             document.body.style.overflow = "hidden";
             document.documentElement.style.overflow = "hidden";
+
+            // Fix position to prevent scroll on mobile
+            document.body.style.position = "fixed";
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = "100%";
         } else {
+            // Get the scroll position before restoring
+            const scrollY = document.body.style.top
+
+            // Restore scroll
             document.body.style.overflow = "";
             document.documentElement.style.overflow = "";
+            document.body.style.position = "";
+            document.body.style.top = "";
+            document.body.style.width = "";
+
+            // Restore scroll position
+            if (scrollY) {
+                window.scrollTo(0, parseInt(scrollY || '0') * -1)
+            }
         }
     }, [isOpen, event]);
 

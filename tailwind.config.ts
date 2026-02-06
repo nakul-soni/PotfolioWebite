@@ -24,6 +24,7 @@ const config = {
         ring: "hsl(var(--ring))",
         background: "var(--bg-primary)",
         foreground: "var(--text-primary)",
+        surface: "var(--bg-surface)",
         primary: {
           DEFAULT: "var(--accent-primary)",
           foreground: "var(--text-primary)",
@@ -43,6 +44,8 @@ const config = {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+          primary: "var(--accent-primary)",
+          secondary: "var(--accent-secondary)",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",

@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { X, Send } from "lucide-react"
 import { gsap } from "gsap"
 
@@ -11,10 +11,15 @@ interface QuoteModalProps {
 
 export function QuoteModal({ isOpen, onClose, serviceTitle }: QuoteModalProps) {
     const [isAnimating, setIsAnimating] = useState(false);
+    const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+    const [errorMessage, setErrorMessage] = useState("");
+    const formRef = useRef<HTMLFormElement>(null);
 
     useEffect(() => {
         if (isOpen) {
             setIsAnimating(true);
+            setStatus("idle");
+            setErrorMessage("");
             gsap.fromTo(".modal-content",
                 { scale: 0.8, opacity: 0, y: 50 },
                 { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" }
@@ -26,6 +31,47 @@ export function QuoteModal({ isOpen, onClose, serviceTitle }: QuoteModalProps) {
     const handleClose = () => {
         gsap.to(".modal-content", { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in" });
         gsap.to(".modal-overlay", { opacity: 0, duration: 0.3, onComplete: onClose });
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setStatus("submitting");
+        setErrorMessage("");
+
+        const formData = new FormData(e.currentTarget);
+        const data = {
+            name: formData.get("name") as string,
+            email: formData.get("email") as string,
+            message: formData.get("message") as string,
+            service: serviceTitle,
+        };
+
+        try {
+            const response = await fetch("/api/quote", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || "Failed to send quote request");
+            }
+
+            setStatus("success");
+            if (formRef.current) formRef.current.reset();
+
+            // Close modal after 2 seconds
+            setTimeout(() => {
+                handleClose();
+            }, 2000);
+        } catch (error) {
+            setStatus("error");
+            setErrorMessage(error instanceof Error ? error.message : "Failed to send quote request. Please try again.");
+        }
     };
 
     if (!isOpen) return null;
@@ -54,23 +100,70 @@ export function QuoteModal({ isOpen, onClose, serviceTitle }: QuoteModalProps) {
                     </p>
                 </div>
 
-                <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); alert("Mock form submitted!"); handleClose(); }}>
+                <form ref={formRef} className="space-y-4" onSubmit={handleSubmit}>
                     <div className="space-y-2">
                         <label className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Name</label>
-                        <input type="text" className="w-full bg-background border border-border rounded-lg p-3 text-sm focus:outline-none focus:border-accent-primary transition-colors" placeholder="John Doe" required />
+                        <input
+                            type="text"
+                            name="name"
+                            className="w-full bg-background border border-border rounded-lg p-3 text-sm focus:outline-none focus:border-accent-primary transition-colors"
+                            placeholder="John Doe"
+                            required
+                            disabled={status === "submitting"}
+                        />
                     </div>
                     <div className="space-y-2">
                         <label className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Email</label>
-                        <input type="email" className="w-full bg-background border border-border rounded-lg p-3 text-sm focus:outline-none focus:border-accent-primary transition-colors" placeholder="john@example.com" required />
+                        <input
+                            type="email"
+                            name="email"
+                            className="w-full bg-background border border-border rounded-lg p-3 text-sm focus:outline-none focus:border-accent-primary transition-colors"
+                            placeholder="john@example.com"
+                            required
+                            disabled={status === "submitting"}
+                        />
                     </div>
                     <div className="space-y-2">
                         <label className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Project Details</label>
-                        <textarea className="w-full bg-background border border-border rounded-lg p-3 text-sm focus:outline-none focus:border-accent-primary transition-colors min-h-[100px]" placeholder="Tell me about your project..." required />
+                        <textarea
+                            name="message"
+                            className="w-full bg-background border border-border rounded-lg p-3 text-sm focus:outline-none focus:border-accent-primary transition-colors min-h-[100px]"
+                            placeholder="Tell me about your project..."
+                            required
+                            disabled={status === "submitting"}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    if (formRef.current) {
+                                        formRef.current.requestSubmit();
+                                    }
+                                }
+                            }}
+                        />
                     </div>
 
-                    <button type="submit" className="w-full bg-accent-primary text-white font-bold py-3 rounded-lg hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2 group">
-                        Send Inquiry <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <button
+                        type="submit"
+                        disabled={status === "submitting"}
+                        className="w-full bg-accent-primary text-white font-bold py-3 rounded-lg hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {status === "submitting" ? "Sending..." : status === "success" ? "Sent!" : "Send Inquiry"}
+                        {status === "idle" && <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
                     </button>
+
+                    {/* Success Message */}
+                    {status === "success" && (
+                        <div className="p-3 bg-green-500/10 border border-green-500/50 rounded-lg text-green-500 text-sm text-center">
+                            ✓ Quote request sent successfully! I'll get back to you soon.
+                        </div>
+                    )}
+
+                    {/* Error Message */}
+                    {status === "error" && (
+                        <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm text-center">
+                            ✗ {errorMessage}
+                        </div>
+                    )}
                 </form>
             </div>
         </div>

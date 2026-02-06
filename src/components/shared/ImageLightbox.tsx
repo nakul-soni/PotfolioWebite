@@ -40,8 +40,17 @@ export function ImageLightbox({
     // Lock body scroll when open
     useEffect(() => {
         if (isOpen) {
+            // Save current scroll position
+            const scrollY = window.scrollY
+
+            // Lock scroll on body and html
             document.body.style.overflow = "hidden"
             document.documentElement.style.overflow = "hidden"
+
+            // Fix position to prevent scroll on mobile
+            document.body.style.position = "fixed"
+            document.body.style.top = `-${scrollY}px`
+            document.body.style.width = "100%"
 
             // Animate in
             gsap.fromTo(overlayRef.current,
@@ -49,13 +58,33 @@ export function ImageLightbox({
                 { opacity: 1, duration: 0.3 }
             )
         } else {
+            // Get the scroll position before restoring
+            const scrollY = document.body.style.top
+
+            // Restore scroll
             document.body.style.overflow = ""
             document.documentElement.style.overflow = ""
+            document.body.style.position = ""
+            document.body.style.top = ""
+            document.body.style.width = ""
+
+            // Restore scroll position
+            if (scrollY) {
+                window.scrollTo(0, parseInt(scrollY || '0') * -1)
+            }
         }
 
         return () => {
+            // Cleanup on unmount
+            const scrollY = document.body.style.top
             document.body.style.overflow = ""
             document.documentElement.style.overflow = ""
+            document.body.style.position = ""
+            document.body.style.top = ""
+            document.body.style.width = ""
+            if (scrollY) {
+                window.scrollTo(0, parseInt(scrollY || '0') * -1)
+            }
         }
     }, [isOpen])
 
@@ -200,8 +229,8 @@ export function ImageLightbox({
             <div
                 ref={imageRef}
                 className={`relative shadow-2xl rounded-lg overflow-hidden border border-white/10 bg-black ${orientation === "portrait"
-                        ? "max-w-sm md:max-w-md aspect-[9/16]"
-                        : "max-w-5xl aspect-video"
+                    ? "max-w-sm md:max-w-md aspect-[9/16]"
+                    : "max-w-5xl aspect-video"
                     } w-full`}
                 onClick={(e) => e.stopPropagation()}
             >

@@ -41,15 +41,15 @@
 
     --radius: 0.5rem;
 
-    /* Custom Project Vars - Light Mode */
-    --bg-primary: #FAFAFA;
-    --bg-surface: #FFFFFF;
-    --bg-cards: #F8FAFC;
+    /* Custom Project Vars - Light Mode - Optimized for visibility */
+    --bg-primary: #FFFFFF;
+    --bg-surface: #F9FAFB;
+    --bg-cards: #F3F4F6;
     --text-primary: #111827;
-    --text-secondary: #6B7280;
+    --text-secondary: #4B5563;
     --accent-primary: #3B82F6;
     --accent-secondary: #60A5FA;
-    --border-color: #E5E7EB;
+    --border-color: #D1D5DB;
   }
 
   .dark {
