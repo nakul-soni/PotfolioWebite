@@ -17,11 +17,29 @@ export function Skills() {
     const pyramidRef = useRef<HTMLDivElement>(null)
     const [rotation, setRotation] = useState({ x: 0, y: 0 })
 
-    // Data
-    const baseIcons = [SiHtml5, SiCss3, SiJavascript, SiGit, SiTypescript, SiMysql]
-    const coreIcons = [SiNodedotjs, SiAngular, FaJava, SiVercel]
-    const frameworkIcons = [SiNextdotjs, SiTailwindcss]
-    const crownIcon = SiGreensock
+    // Data - Each skill with its name
+    const baseSkills = [
+        { Icon: SiHtml5, name: "HTML5" },
+        { Icon: SiCss3, name: "CSS3" },
+        { Icon: SiJavascript, name: "JavaScript" },
+        { Icon: SiGit, name: "Git" },
+        { Icon: SiTypescript, name: "TypeScript" },
+        { Icon: SiMysql, name: "MySQL" }
+    ]
+
+    const coreSkills = [
+        { Icon: SiNodedotjs, name: "Node.js" },
+        { Icon: SiAngular, name: "Angular" },
+        { Icon: FaJava, name: "Java" },
+        { Icon: SiVercel, name: "Vercel" }
+    ]
+
+    const frameworkSkills = [
+        { Icon: SiNextdotjs, name: "Next.js" },
+        { Icon: SiTailwindcss, name: "Tailwind CSS" }
+    ]
+
+    const crownSkill = { Icon: SiGreensock, name: "GSAP" }
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -162,22 +180,22 @@ export function Skills() {
 
                 {/* Level 1: Crown */}
                 <div className="skill-level-crown flex justify-center mb-8 transform-style-3d translate-z-20">
-                    <IconCard Icon={crownIcon} name="GSAP ScrollTrigger" level="Crown" />
+                    <IconCard Icon={crownSkill.Icon} name={crownSkill.name} level="Crown" />
                 </div>
 
                 {/* Level 2: Frameworks */}
                 <div className="skill-level-framework flex justify-center gap-6 mb-8 transform-style-3d translate-z-10">
-                    {frameworkIcons.map((Icon, i) => <IconCard key={i} Icon={Icon} name="Framework" level="Framework" />)}
+                    {frameworkSkills.map((skill, i) => <IconCard key={i} Icon={skill.Icon} name={skill.name} level="Framework" />)}
                 </div>
 
                 {/* Level 3: Core */}
                 <div className="skill-level-core flex justify-center gap-6 mb-8 transform-style-3d">
-                    {coreIcons.map((Icon, i) => <IconCard key={i} Icon={Icon} name="Core" level="Core" />)}
+                    {coreSkills.map((skill, i) => <IconCard key={i} Icon={skill.Icon} name={skill.name} level="Core" />)}
                 </div>
 
                 {/* Level 4: Base */}
                 <div className="skill-level-base flex justify-center gap-4 flex-wrap max-w-2xl transform-style-3d translate-z-n10">
-                    {baseIcons.map((Icon, i) => <IconCard key={i} Icon={Icon} name="Base" level="Base" />)}
+                    {baseSkills.map((skill, i) => <IconCard key={i} Icon={skill.Icon} name={skill.name} level="Base" />)}
                 </div>
 
                 {/* Floor Glow */}

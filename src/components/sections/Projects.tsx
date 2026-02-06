@@ -6,21 +6,21 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { PROJECTS } from "@/lib/constants"
 import { ArrowRight, Github, ExternalLink } from "lucide-react"
 import Image from "next/image"
+import { ImageLightbox } from "@/components/shared/ImageLightbox"
 
 export function Projects() {
     const containerRef = useRef<HTMLDivElement>(null)
     const wrapperRef = useRef<HTMLDivElement>(null)
-    const [selectedImage, setSelectedImage] = useState<{ projectIndex: number; imageIndex: number } | null>(null)
+    const [lightboxOpen, setLightboxOpen] = useState(false)
+    const [lightboxImages, setLightboxImages] = useState<string[]>([])
+    const [lightboxInitialIndex, setLightboxInitialIndex] = useState(0)
+    const [lightboxOrientation, setLightboxOrientation] = useState<"landscape" | "portrait">("landscape")
     const [currentIndex, setCurrentIndex] = useState(0)
     const [isMobile, setIsMobile] = useState(false)
 
     // Main Carousel Touch Refs
     const touchStartX = useRef(0)
     const touchEndX = useRef(0)
-
-    // Lightbox Touch Refs
-    const lightboxTouchStartX = useRef(0)
-    const lightboxTouchEndX = useRef(0)
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -70,33 +70,16 @@ export function Projects() {
         return () => ctx.revert()
     }, [])
 
-    useEffect(() => {
-        if (selectedImage) {
-            document.body.style.overflow = "hidden"
-            document.documentElement.style.overflow = "hidden"
-        } else {
-            document.body.style.overflow = ""
-            document.documentElement.style.overflow = ""
-        }
-        return () => {
-            document.body.style.overflow = ""
-            document.documentElement.style.overflow = ""
-        }
-    }, [selectedImage])
-
     // Touch swipe handlers for mobile
     const handleTouchStart = (e: React.TouchEvent) => {
-        if (selectedImage) return // Disable main swipe
         touchStartX.current = e.touches[0].clientX
     }
 
     const handleTouchMove = (e: React.TouchEvent) => {
-        if (selectedImage) return // Disable main swipe
         touchEndX.current = e.touches[0].clientX
     }
 
     const handleTouchEnd = () => {
-        if (selectedImage) return // Disable main swipe
         const swipeThreshold = 50
         const diff = touchStartX.current - touchEndX.current
 
@@ -178,7 +161,12 @@ export function Projects() {
                                             return (
                                                 <div
                                                     key={idx}
-                                                    onClick={() => setSelectedImage({ projectIndex: i, imageIndex: idx })}
+                                                    onClick={() => {
+                                                        setLightboxImages(project.images)
+                                                        setLightboxInitialIndex(idx)
+                                                        setLightboxOrientation(isPortrait ? "portrait" : "landscape")
+                                                        setLightboxOpen(true)
+                                                    }}
                                                     className={`absolute top-1/2 -translate-y-1/2 transition-all duration-500 ease-out cursor-zoom-in rounded-xl overflow-hidden shadow-2xl border border-border/50 bg-black/50 ${positionClass} ${isPortrait ? "w-[25%] aspect-[9/16]" : "w-[80%] aspect-video"}`}
                                                 >
                                                     <Image
@@ -255,88 +243,14 @@ export function Projects() {
                 )}
             </>
 
-            {/* Lightbox Modal */}
-            {/* Lightbox Modal */}
-            {selectedImage && (() => {
-                const project = PROJECTS[selectedImage.projectIndex];
-                const images = project.images;
-                const currentImg = images[selectedImage.imageIndex];
-                const orientation = (project as any).orientation;
-                const hasNext = selectedImage.imageIndex < images.length - 1;
-                const hasPrev = selectedImage.imageIndex > 0;
-
-                const handleLightboxSwipe = () => {
-                    const diff = lightboxTouchStartX.current - lightboxTouchEndX.current;
-                    if (Math.abs(diff) > 50) {
-                        if (diff > 0 && hasNext) {
-                            setSelectedImage(prev => prev ? { ...prev, imageIndex: prev.imageIndex + 1 } : null);
-                        } else if (diff < 0 && hasPrev) {
-                            setSelectedImage(prev => prev ? { ...prev, imageIndex: prev.imageIndex - 1 } : null);
-                        }
-                    }
-                };
-
-                return (
-                    <div
-                        className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 md:p-10 cursor-zoom-out animate-lightbox"
-                        onClick={() => setSelectedImage(null)}
-                        onTouchStart={(e) => { e.stopPropagation(); lightboxTouchStartX.current = e.touches[0].clientX }}
-                        onTouchMove={(e) => { lightboxTouchEndX.current = e.touches[0].clientX }}
-                        onTouchEnd={handleLightboxSwipe}
-                    >
-                        {/* Navigation Buttons (Desktop/Tablet) */}
-                        <button
-                            className={`hidden md:block absolute left-8 text-white/50 hover:text-white transition-all p-4 ${!hasPrev ? 'opacity-0 pointer-events-none' : ''}`}
-                            onClick={(e) => { e.stopPropagation(); setSelectedImage(prev => prev ? { ...prev, imageIndex: prev.imageIndex - 1 } : null) }}
-                        >
-                            <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                        </button>
-
-                        <button
-                            className={`hidden md:block absolute right-8 text-white/50 hover:text-white transition-all p-4 ${!hasNext ? 'opacity-0 pointer-events-none' : ''}`}
-                            onClick={(e) => { e.stopPropagation(); setSelectedImage(prev => prev ? { ...prev, imageIndex: prev.imageIndex + 1 } : null) }}
-                        >
-                            <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                        </button>
-
-                        {/* Image Counter */}
-                        <div className="absolute top-8 left-8 text-white/70 font-mono">
-                            {selectedImage.imageIndex + 1} / {images.length}
-                        </div>
-
-                        <div
-                            className={`relative w-full shadow-2xl rounded-lg overflow-hidden border border-border/20 bg-black ${orientation === "portrait" ? "max-w-sm aspect-[9/16]" : "max-w-5xl aspect-video"}`}
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <Image
-                                src={currentImg}
-                                alt={`Project View ${selectedImage.imageIndex + 1}`}
-                                fill
-                                className="object-contain"
-                            />
-
-                            {/* Mobile Swipe Hints */}
-                            {hasPrev && (
-                                <div className="md:hidden absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 p-2 rounded-full text-white/70 animate-pulse pointer-events-none">
-                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                                </div>
-                            )}
-                            {hasNext && (
-                                <div className="md:hidden absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 p-2 rounded-full text-white/70 animate-pulse pointer-events-none">
-                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                                </div>
-                            )}
-                        </div>
-
-                        <button
-                            className="absolute top-8 right-8 text-white hover:text-accent-primary transition-colors p-2"
-                            onClick={() => setSelectedImage(null)}
-                        >
-                            <span className="text-4xl">&times;</span>
-                        </button>
-                    </div>
-                );
-            })()}
+            {/* Image Lightbox */}
+            <ImageLightbox
+                images={lightboxImages}
+                initialIndex={lightboxInitialIndex}
+                isOpen={lightboxOpen}
+                onClose={() => setLightboxOpen(false)}
+                orientation={lightboxOrientation}
+            />
 
         </section>
     )

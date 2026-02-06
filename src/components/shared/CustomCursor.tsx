@@ -15,87 +15,54 @@ export function CustomCursor() {
             const isMobile = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768
             document.body.style.cursor = isMobile ? 'auto' : 'none'
 
-            // Explicitly hide elements to prevent GSAP from overriding with display: block
+            // Hide follower circle completely
             if (cursor && follower) {
                 const display = isMobile ? 'none' : 'block'
                 cursor.style.display = display
-                follower.style.display = display
+                follower.style.display = 'none' // Always hide the follower circle
             }
         }
 
         updateCursor()
         window.addEventListener('resize', updateCursor)
 
-        if (!cursor || !follower) return
+        if (!cursor) return
 
         const pos = { x: 0, y: 0 }
         const mouse = { x: 0, y: 0 }
-        const vel = { x: 0, y: 0 }
 
         // GSAP Setters (more performant than to())
         const xSet = gsap.quickSetter(cursor, "x", "px")
         const ySet = gsap.quickSetter(cursor, "y", "px")
-        const xSetFollower = gsap.quickSetter(follower, "x", "px")
-        const ySetFollower = gsap.quickSetter(follower, "y", "px")
 
         // Update mouse position
         const onMouseMove = (e: MouseEvent) => {
             mouse.x = e.clientX
             mouse.y = e.clientY
 
-            // Immediate update for dot
+            // Immediate update for cursor
             xSet(mouse.x)
             ySet(mouse.y)
         }
 
-        // Animation Loop for Smooth Follower
-        const loop = () => {
-            // Linear interpolation for follower
-            const dt = 0.15 // dampening factor
-            pos.x += (mouse.x - pos.x) * dt
-            pos.y += (mouse.y - pos.y) * dt
-
-            // Calculate velocity for stretching effect
-            vel.x = mouse.x - pos.x
-            vel.y = mouse.y - pos.y
-
-            // Apply position
-            xSetFollower(pos.x)
-            ySetFollower(pos.y)
-
-            // Velocity based scaling (stretch in direction of movement)
-            // This is a simplified "trail" effect using scale
-            const velocity = Math.sqrt(vel.x * vel.x + vel.y * vel.y)
-            const scale = Math.min(velocity * 0.005 + 1, 1.5) // Cap scale at 1.5
-            const angle = Math.atan2(vel.y, vel.x) * 180 / Math.PI
-
-            gsap.set(follower, {
-                rotation: angle,
-                scaleX: scale,
-                scaleY: 1 / scale // Maintain area
-            })
-
-            requestAnimationFrame(loop)
-        }
-
         window.addEventListener("mousemove", onMouseMove)
-        const rafInfo = requestAnimationFrame(loop)
 
         // Global Event Delegation for Hover Effects
-        // This ensures dynamic elements (like GSAP-animated content) work correctly
+        // Show pointer cursor on clickable elements
         const onMouseOver = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
             // Check if the target or its parent is clickable
             const clickable = target.closest('a, button, [role="button"], input, textarea, select, .cursor-pointer');
 
             if (clickable) {
-                gsap.to(follower, {
-                    scale: 2,
-                    backgroundColor: "var(--accent-primary)",
-                    opacity: 0.5,
-                    duration: 0.3,
-                    display: "block" // Ensure it's visible
-                })
+                // Show pointer cursor instead of custom cursor
+                document.body.style.cursor = 'pointer'
+                if (cursor) {
+                    gsap.to(cursor, {
+                        opacity: 0,
+                        duration: 0.2
+                    })
+                }
             }
         }
 
@@ -104,27 +71,33 @@ export function CustomCursor() {
             const clickable = target.closest('a, button, [role="button"], input, textarea, select, .cursor-pointer');
 
             if (clickable) {
-                gsap.to(follower, {
-                    scale: 1,
-                    backgroundColor: "transparent",
-                    opacity: 1,
-                    duration: 0.3
-                })
+                // Restore custom cursor
+                document.body.style.cursor = 'none'
+                if (cursor) {
+                    gsap.to(cursor, {
+                        opacity: 1,
+                        duration: 0.2
+                    })
+                }
             }
         }
 
         window.addEventListener('mouseover', onMouseOver)
         window.addEventListener('mouseout', onMouseOut)
+
         // Ensure cursor is hidden when leaving window
-        document.body.addEventListener('mouseenter', () => gsap.to([cursor, follower], { opacity: 1 }))
-        document.body.addEventListener('mouseleave', () => gsap.to([cursor, follower], { opacity: 0 }))
+        document.body.addEventListener('mouseenter', () => {
+            if (cursor) gsap.to(cursor, { opacity: 1 })
+        })
+        document.body.addEventListener('mouseleave', () => {
+            if (cursor) gsap.to(cursor, { opacity: 0 })
+        })
 
         return () => {
             window.removeEventListener('resize', updateCursor)
             window.removeEventListener("mousemove", onMouseMove)
             window.removeEventListener('mouseover', onMouseOver)
             window.removeEventListener('mouseout', onMouseOut)
-            cancelAnimationFrame(rafInfo)
             document.body.style.cursor = 'auto'
         }
     }, [])

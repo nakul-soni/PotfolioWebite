@@ -75,21 +75,16 @@ export const PROJECTS = [
 
 export const EXPERIENCE = [
     {
-        year: "2024",
-        role: "Senior Frontend Engineer",
-        company: "TechCorp",
-        description: "Leading frontend architecture and team mentoring."
+        year: "Februray 2026 - Present",
+        role: "Software Intern",
+        company: "Attsus Technologies Pvt. Ltd.",
+        description: "Working on building a new platform for the company."
     },
     {
-        year: "2022",
-        role: "Full Stack Developer",
-        company: "WebSolutions",
-        description: "Developed scalable web applications for global clients."
-    },
-    {
-        year: "2021",
-        role: "Junior Developer",
-        company: "StartUp Inc",
-        description: "Collaborated on UI/UX implementation and backend integration."
+        year: "2024-Present",
+        role: "Computer Science and Engineering Student",
+        company: "Indus University Ahmedabad",
+        description: "Pursuing B.Tech in Computer Science and Engineering with a focus on web development, application security, and modern software engineering practices."
     }
+
 ]

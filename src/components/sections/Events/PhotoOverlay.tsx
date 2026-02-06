@@ -14,6 +14,12 @@ export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const overlayRef = useRef<HTMLDivElement>(null);
 
+    // Touch gesture refs for swipe navigation
+    const touchStartX = useRef(0)
+    const touchEndX = useRef(0)
+    const touchStartY = useRef(0)
+    const touchEndY = useRef(0)
+
     useEffect(() => {
         if (isOpen && event) {
             setCurrentIndex(0);
@@ -60,6 +66,34 @@ export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
     const handleClose = () => {
         gsap.to(overlayRef.current, { opacity: 0, duration: 0.3, onComplete: onClose });
     };
+
+    // Touch handlers for swipe gestures
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX
+        touchStartY.current = e.touches[0].clientY
+    }
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        touchEndX.current = e.touches[0].clientX
+        touchEndY.current = e.touches[0].clientY
+    }
+
+    const handleTouchEnd = () => {
+        const swipeThreshold = 50
+        const diffX = touchStartX.current - touchEndX.current
+        const diffY = Math.abs(touchStartY.current - touchEndY.current)
+
+        // Only trigger if horizontal swipe is dominant
+        if (Math.abs(diffX) > swipeThreshold && Math.abs(diffX) > diffY) {
+            if (diffX > 0) {
+                // Swipe left - next photo
+                changePhoto('next')
+            } else {
+                // Swipe right - previous photo
+                changePhoto('prev')
+            }
+        }
+    }
 
     // Keyboard navigation
     useEffect(() => {
@@ -115,7 +149,12 @@ export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
                     </div>
 
                     {/* Image Gallery Section */}
-                    <div className="relative bg-black">
+                    <div
+                        className="relative bg-black"
+                        onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}
+                    >
                         {/* Photo Counter */}
                         <div className="absolute top-4 left-4 z-20 bg-black/60 backdrop-blur-sm text-white px-3 py-2 rounded-full text-sm font-mono">
                             {currentIndex + 1} / {photos.length}
