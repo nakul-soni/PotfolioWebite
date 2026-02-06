@@ -79,6 +79,7 @@ export function About() {
                                 src="/projects/MyPhoto/Myphoto.jpeg"
                                 alt="User Photo"
                                 fill
+                                sizes="(max-width: 768px) 320px, 320px"
                                 className="object-cover transition-transform duration-500 group-hover:scale-110"
                             />
                         </div>

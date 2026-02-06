@@ -36,14 +36,14 @@ export function ThemeToggle() {
         <button
             ref={buttonRef}
             onClick={toggleTheme}
-            className="fixed top-4 left-4 md:top-6 md:right-8 md:left-auto z-50 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-surface/80 backdrop-blur-md border border-border shadow-lg hover:shadow-glow transition-all duration-300"
+            className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-surface/90 backdrop-blur-md border border-border shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300"
             aria-label="Toggle Theme"
         >
             <div className="relative">
                 {theme === 'dark' ? (
-                    <Moon className="w-4 h-4 md:w-5 md:h-5 text-accent-primary" />
+                    <Moon className="w-5 h-5 md:w-6 md:h-6 text-accent-primary" />
                 ) : (
-                    <Sun className="w-4 h-4 md:w-5 md:h-5 text-amber-500" />
+                    <Sun className="w-5 h-5 md:w-6 md:h-6 text-amber-500" />
                 )}
             </div>
         </button>

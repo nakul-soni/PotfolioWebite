@@ -173,6 +173,7 @@ export function Projects() {
                                                         src={img}
                                                         alt={`${project.title} - view ${idx + 1}`}
                                                         fill
+                                                        sizes="(max-width: 768px) 25vw, 80vw"
                                                         className="object-cover"
                                                     />
                                                 </div>

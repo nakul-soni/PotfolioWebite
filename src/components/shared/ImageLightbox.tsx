@@ -34,8 +34,14 @@ export function ImageLightbox({
     useEffect(() => {
         if (isOpen) {
             setCurrentIndex(initialIndex)
+            console.log('🖼️ Lightbox opened:', {
+                isOpen,
+                currentIndex: initialIndex,
+                totalImages: images.length,
+                currentImage: images[initialIndex]
+            })
         }
-    }, [initialIndex, isOpen])
+    }, [initialIndex, isOpen, images])
 
     // Lock body scroll when open
     useEffect(() => {
@@ -171,7 +177,8 @@ export function ImageLightbox({
     return (
         <div
             ref={overlayRef}
-            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 md:p-10"
+            className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 md:p-10"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             onClick={handleClose}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -228,19 +235,23 @@ export function ImageLightbox({
             {/* Image Container */}
             <div
                 ref={imageRef}
-                className={`relative shadow-2xl rounded-lg overflow-hidden border border-white/10 bg-black ${orientation === "portrait"
+                className={`relative shadow-2xl rounded-lg overflow-hidden border-2 border-white/20 mx-auto ${orientation === "portrait"
                     ? "max-w-sm md:max-w-md aspect-[9/16]"
                     : "max-w-5xl aspect-video"
-                    } w-full`}
+                    } w-full bg-black/50`}
                 onClick={(e) => e.stopPropagation()}
             >
-                <Image
-                    src={images[currentIndex]}
-                    alt={`Image ${currentIndex + 1} of ${images.length}`}
-                    fill
-                    className="object-contain"
-                    priority
-                />
+                {images[currentIndex] && (
+                    <Image
+                        src={images[currentIndex]}
+                        alt={`Image ${currentIndex + 1} of ${images.length}`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 1200px"
+                        className="object-contain"
+                        priority
+                        unoptimized
+                    />
+                )}
 
                 {/* Mobile Swipe Hints */}
                 {canNavigate && (
