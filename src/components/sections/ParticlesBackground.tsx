@@ -10,12 +10,16 @@ export function ParticlesBackground() {
     useEffect(() => {
         const canvas = canvasRef.current
         if (!canvas) return
-        const ctx = canvas.getContext("2d")
+        const ctx =
+            canvas.getContext("2d", { alpha: true, desynchronized: true }) ||
+            canvas.getContext("2d")
         if (!ctx) return
 
         let width = window.innerWidth
         let height = window.innerHeight
         let animationFrameId: number
+        let lastTime = 0
+        let isRunning = true
 
         // Star properties
         const stars: Star[] = []
@@ -88,7 +92,16 @@ export function ParticlesBackground() {
             }
         }
 
-        const animate = () => {
+        const animate = (time: number) => {
+            if (!isRunning) return
+
+            const delta = time - lastTime
+            if (delta < 1000 / 60) {
+                animationFrameId = requestAnimationFrame(animate)
+                return
+            }
+            lastTime = time
+
             // Trail effect
             ctx.fillStyle = theme === "dark" ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'
             ctx.fillRect(0, 0, width, height)
@@ -101,7 +114,7 @@ export function ParticlesBackground() {
         }
 
         init()
-        animate()
+        animationFrameId = requestAnimationFrame(animate)
 
         const handleResize = () => {
             width = window.innerWidth
@@ -114,12 +127,27 @@ export function ParticlesBackground() {
             mouseY = e.clientY
         }
 
-        window.addEventListener("resize", handleResize)
-        window.addEventListener("mousemove", handleMouseMove)
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                isRunning = false
+                cancelAnimationFrame(animationFrameId)
+            } else {
+                if (!isRunning) {
+                    isRunning = true
+                    lastTime = performance.now()
+                    animationFrameId = requestAnimationFrame(animate)
+                }
+            }
+        }
+
+        window.addEventListener("resize", handleResize, { passive: true })
+        window.addEventListener("mousemove", handleMouseMove, { passive: true })
+        document.addEventListener("visibilitychange", handleVisibilityChange)
 
         return () => {
             window.removeEventListener("resize", handleResize)
             window.removeEventListener("mousemove", handleMouseMove)
+            document.removeEventListener("visibilitychange", handleVisibilityChange)
             cancelAnimationFrame(animationFrameId)
         }
     }, [theme])

@@ -46,6 +46,32 @@ export function Hero() {
                 ease: "sine.inOut"
             })
 
+            // Rotating Role Text Animation
+            const roleLines = gsap.utils.toArray<HTMLElement>(".hero-rotating-text span")
+            if (roleLines.length > 0) {
+                gsap.set(roleLines, { opacity: 0, y: 12, filter: "blur(6px)" })
+
+                const roleTl = gsap.timeline({ repeat: -1 })
+                roleLines.forEach((line) => {
+                    roleTl
+                        .to(line, {
+                            opacity: 1,
+                            y: 0,
+                            filter: "blur(0px)",
+                            duration: 0.7,
+                            ease: "power3.out"
+                        })
+                        .to(line, { duration: 1.6 })
+                        .to(line, {
+                            opacity: 0,
+                            y: -12,
+                            filter: "blur(6px)",
+                            duration: 0.6,
+                            ease: "power3.in"
+                        }, "+=0.1")
+                })
+            }
+
         }, containerRef)
 
         // Parallax Scroll Effect - Desktop only
@@ -86,7 +112,12 @@ export function Hero() {
 
                 <div className="overflow-hidden mb-8">
                     <p className="hero-text-line text-xl md:text-3xl text-muted-foreground font-medium tracking-wide">
-                        FULL STACK DEVELOPER
+                        <span className="hero-rotating-text relative inline-block h-[1.2em] min-w-[26ch] whitespace-nowrap text-center">
+                            <span className="absolute inset-0">FULL STACK DEVELOPER</span>
+                            <span className="absolute inset-0">APPLICATION DEVELOPER</span>
+                            <span className="absolute inset-0">WEB SECURITY TESTER</span>
+                            <span className="absolute inset-0">CYBER SECURITY ENGINEER</span>
+                        </span>
                     </p>
                 </div>
 

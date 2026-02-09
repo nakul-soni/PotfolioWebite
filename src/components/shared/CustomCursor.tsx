@@ -24,7 +24,7 @@ export function CustomCursor() {
         }
 
         updateCursor()
-        window.addEventListener('resize', updateCursor)
+        window.addEventListener('resize', updateCursor, { passive: true })
 
         if (!cursor) return
 
@@ -36,16 +36,22 @@ export function CustomCursor() {
         const ySet = gsap.quickSetter(cursor, "y", "px")
 
         // Update mouse position
+        let rafId: number | null = null
         const onMouseMove = (e: MouseEvent) => {
             mouse.x = e.clientX
             mouse.y = e.clientY
 
-            // Immediate update for cursor
-            xSet(mouse.x)
-            ySet(mouse.y)
+            // Throttle updates to animation frames for smoother performance
+            if (rafId === null) {
+                rafId = requestAnimationFrame(() => {
+                    xSet(mouse.x)
+                    ySet(mouse.y)
+                    rafId = null
+                })
+            }
         }
 
-        window.addEventListener("mousemove", onMouseMove)
+        window.addEventListener("mousemove", onMouseMove, { passive: true })
 
         // Global Event Delegation for Hover Effects
         // Show pointer cursor on clickable elements
@@ -98,6 +104,7 @@ export function CustomCursor() {
             window.removeEventListener("mousemove", onMouseMove)
             window.removeEventListener('mouseover', onMouseOver)
             window.removeEventListener('mouseout', onMouseOut)
+            if (rafId !== null) cancelAnimationFrame(rafId)
             document.body.style.cursor = 'auto'
         }
     }, [])

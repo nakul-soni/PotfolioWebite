@@ -8,6 +8,8 @@ import { LoadingScreen } from "@/components/shared/LoadingScreen";
 import { ThemeToggle } from "@/components/shared/ThemeToggle"; // Floating orb
 import { Navbar } from "@/components/Navbar";
 import { ParticlesBackground } from "@/components/sections/ParticlesBackground";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
@@ -39,6 +41,8 @@ export default function RootLayout({
           <main className="relative z-10 min-h-screen bg-transparent text-foreground">
             {children}
           </main>
+          <Analytics />
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>
