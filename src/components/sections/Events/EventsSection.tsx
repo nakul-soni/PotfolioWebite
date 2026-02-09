@@ -197,7 +197,7 @@ export function EventsSection() {
                             className={`event-card-wrapper shrink-0 transition-opacity duration-500 ${isMobile
                                 ? 'opacity-100'
                                 : 'event-card'
-                                }`}
+                                } flex justify-center`}
                             style={{
                                 width: isMobile ? '100%' : '320px',
                                 position: 'relative'
@@ -206,10 +206,12 @@ export function EventsSection() {
                             {/* Hanging line from timeline - Desktop only */}
                             <div className="hidden md:block absolute -top-32 left-1/2 -translate-x-1/2 w-0.5 h-24 bg-accent-primary/40" />
 
-                            <EventCard
-                                event={event}
-                                onCardClick={() => openEventModal(event)}
-                            />
+                            <div className="w-[85%] max-w-[320px]">
+                                <EventCard
+                                    event={event}
+                                    onCardClick={() => openEventModal(event)}
+                                />
+                            </div>
                         </div>
                     ))}
 
