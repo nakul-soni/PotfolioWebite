@@ -16,6 +16,7 @@ export function EventsSection() {
     const [overlayOpen, setOverlayOpen] = useState(false);
     const [activeEvent, setActiveEvent] = useState<typeof EVENTS_DATA[0] | null>(null);
     const [isMobile, setIsMobile] = useState(false);
+    const [slideWidth, setSlideWidth] = useState(0);
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const touchStartX = useRef(0);
@@ -114,6 +115,11 @@ export function EventsSection() {
             // Mobile: No scroll animation - simple swipe carousel
             mm.add("(max-width: 767px)", () => {
                 setIsMobile(true);
+                const updateWidth = () => {
+                    setSlideWidth(containerRef.current?.offsetWidth || window.innerWidth);
+                };
+                updateWidth();
+                window.addEventListener("resize", updateWidth, { passive: true });
                 // Subtle mobile entrance animations
                 const cards = gsap.utils.toArray(".event-card-wrapper");
                 gsap.from(cards, {
@@ -123,6 +129,10 @@ export function EventsSection() {
                     duration: 0.6,
                     ease: "power2.out"
                 });
+
+                return () => {
+                    window.removeEventListener("resize", updateWidth);
+                };
             });
 
         }, containerRef);
@@ -185,10 +195,10 @@ export function EventsSection() {
             <div className="w-full h-full flex items-center overflow-hidden">
                 <div
                     ref={wrapperRef}
-                    className="flex items-center gap-0 md:gap-32 px-0 md:px-16 transition-transform duration-500 ease-out will-change-transform"
+                    className="flex items-center gap-0 md:gap-32 px-0 md:px-16 transition-transform duration-500 ease-out will-change-transform flex-none"
                     style={{
-                        width: isMobile ? `${EVENTS_DATA.length * 100}vw` : 'max-content',
-                        transform: isMobile ? `translateX(-${currentIndex * 100}vw)` : 'none'
+                        width: isMobile && slideWidth ? `${EVENTS_DATA.length * slideWidth}px` : 'max-content',
+                        transform: isMobile && slideWidth ? `translateX(-${currentIndex * slideWidth}px)` : 'none'
                     }}
                 >
                     {EVENTS_DATA.map((event, i) => (
@@ -199,7 +209,7 @@ export function EventsSection() {
                                 : 'event-card'
                                 } flex justify-center`}
                             style={{
-                                width: isMobile ? '100vw' : '320px',
+                                width: isMobile && slideWidth ? `${slideWidth}px` : '320px',
                                 position: 'relative'
                             }}
                         >
