@@ -94,7 +94,7 @@ export function Contact() {
                             <div className="w-12 h-12 rounded-full bg-surface flex items-center justify-center border border-border">
                                 <Mail className="w-5 h-5 text-accent-primary" />
                             </div>
-                            <span>nakul@example.com</span>
+                            <span>nakulsoni2006@gmail.com</span>
                         </div>
                         <div className="flex items-center gap-4 text-xl">
                             <div className="w-12 h-12 rounded-full bg-surface flex items-center justify-center border border-border">
