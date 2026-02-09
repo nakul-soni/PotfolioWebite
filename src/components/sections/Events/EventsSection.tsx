@@ -195,7 +195,7 @@ export function EventsSection() {
                         <div
                             key={event.id}
                             className={`event-card-wrapper shrink-0 transition-opacity duration-500 ${isMobile
-                                ? (i === currentIndex ? 'opacity-100' : 'opacity-30')
+                                ? 'opacity-100'
                                 : 'event-card'
                                 }`}
                             style={{
