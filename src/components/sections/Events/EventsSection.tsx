@@ -185,10 +185,10 @@ export function EventsSection() {
             <div className="w-full h-full flex items-center overflow-hidden">
                 <div
                     ref={wrapperRef}
-                    className="flex items-center gap-8 md:gap-32 px-8 md:px-16 transition-transform duration-500 ease-out will-change-transform"
+                    className="flex items-center gap-0 md:gap-32 px-0 md:px-16 transition-transform duration-500 ease-out will-change-transform"
                     style={{
                         width: 'max-content',
-                        transform: `translateX(-${currentIndex * (isMobile ? (320 + 32) : 0)}px)`
+                        transform: isMobile ? `translateX(-${currentIndex * 100}%)` : 'none'
                     }}
                 >
                     {EVENTS_DATA.map((event, i) => (
@@ -199,7 +199,7 @@ export function EventsSection() {
                                 : 'event-card'
                                 }`}
                             style={{
-                                width: '320px',
+                                width: isMobile ? '100%' : '320px',
                                 position: 'relative'
                             }}
                         >
