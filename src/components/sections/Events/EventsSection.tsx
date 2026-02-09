@@ -187,8 +187,8 @@ export function EventsSection() {
                     ref={wrapperRef}
                     className="flex items-center gap-0 md:gap-32 px-0 md:px-16 transition-transform duration-500 ease-out will-change-transform"
                     style={{
-                        width: 'max-content',
-                        transform: isMobile ? `translateX(-${currentIndex * 100}%)` : 'none'
+                        width: isMobile ? `${EVENTS_DATA.length * 100}vw` : 'max-content',
+                        transform: isMobile ? `translateX(-${currentIndex * 100}vw)` : 'none'
                     }}
                 >
                     {EVENTS_DATA.map((event, i) => (
@@ -199,7 +199,7 @@ export function EventsSection() {
                                 : 'event-card'
                                 } flex justify-center`}
                             style={{
-                                width: isMobile ? '100%' : '320px',
+                                width: isMobile ? '100vw' : '320px',
                                 position: 'relative'
                             }}
                         >
