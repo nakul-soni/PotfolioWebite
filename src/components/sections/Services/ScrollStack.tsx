@@ -88,6 +88,16 @@ export const ScrollStack = ({
             gsap.set(cards, { clearProps: "all" });
             if (wrapperRef.current) gsap.set(wrapperRef.current, { clearProps: "all" });
             if (containerRef.current) gsap.set(containerRef.current, { clearProps: "all" });
+
+            // Subtle mobile entrance animations
+            gsap.from(cards, {
+                opacity: 0,
+                y: 18,
+                scale: 0.98,
+                stagger: 0.08,
+                duration: 0.6,
+                ease: "power2.out"
+            });
         });
 
         return () => ctx.revert();

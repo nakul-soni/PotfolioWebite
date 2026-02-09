@@ -114,7 +114,15 @@ export function EventsSection() {
             // Mobile: No scroll animation - simple swipe carousel
             mm.add("(max-width: 767px)", () => {
                 setIsMobile(true);
-                // No GSAP animations on mobile
+                // Subtle mobile entrance animations
+                const cards = gsap.utils.toArray(".event-card-wrapper");
+                gsap.from(cards, {
+                    opacity: 0,
+                    y: 20,
+                    stagger: 0.08,
+                    duration: 0.6,
+                    ease: "power2.out"
+                });
             });
 
         }, containerRef);

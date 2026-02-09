@@ -13,6 +13,10 @@ export function About() {
     const [displayText, setDisplayText] = useState("")
 
     const fullText = "I'M NAKUL SONI"
+    const bioLines = PERSONAL_INFO.bio
+        .split("\n")
+        .map(line => line.trim())
+        .filter(Boolean)
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -94,9 +98,13 @@ export function About() {
                             {displayText}
                             <span className="animate-pulse">|</span>
                         </div>
-                        <p className="text-muted-foreground leading-relaxed">
-                            {PERSONAL_INFO.bio}
-                        </p>
+                        <div className="text-muted-foreground max-w-prose mx-auto md:mx-0 border-l-2 border-accent-primary/30 pl-4 text-sm md:text-base leading-6 md:leading-relaxed space-y-3 text-balance text-left md:text-left">
+                            {bioLines.map((line, idx) => (
+                                <p key={idx}>
+                                    {line}
+                                </p>
+                            ))}
+                        </div>
                         <svg className="w-24 h-2 mt-4 text-accent-secondary" viewBox="0 0 100 2">
                             <line x1="0" y1="1" x2="100" y2="1" stroke="currentColor" strokeWidth="2" strokeDasharray="100" strokeDashoffset="0" className="animate-draw" />
                         </svg>

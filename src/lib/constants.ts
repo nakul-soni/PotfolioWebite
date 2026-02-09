@@ -4,7 +4,7 @@ export const PERSONAL_INFO = {
     title: "Full-Stack Developer",
     location: "Ahmedabad, India",
     tagline: "Building digital experiences that matter.",
-    bio: "I'm a passionate Full-Stack Developer based in Ahmedabad, creating premium web applications with modern technologies. With over 3 years of experience, I specialize in building scalable, high-performance solutions.",
+    bio: "I’m a passionate full-stack developer and aspiring cybersecurity professional with a strong interest in building real-world products and securing modern web applications.\n Currently pursuing engineering, I enjoy working with React, TypeScript, Node.js, and modern UI frameworks while also diving deep into penetration testing and AI-driven security solutions. I love turning ideas into practical systems — whether it’s developing collaborative platforms, designing clean mobile-first interfaces, or implementing security middleware to protect applications. My goal is to grow as a security engineer while creating impactful, scalable software.",
     stats: [
         { label: "Years Exp", value: "1" },
         { label: "Projects", value: "10+" },
