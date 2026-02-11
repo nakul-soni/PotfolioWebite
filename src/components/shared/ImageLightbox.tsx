@@ -235,7 +235,7 @@ export function ImageLightbox({
             {/* Image Container */}
             <div
                 ref={imageRef}
-                className={`relative shadow-2xl rounded-lg overflow-hidden border-2 border-white/20 mx-auto ${orientation === "portrait"
+                className={`relative shadow-2xl rounded-lg overflow-hidden border-2 border-white/20 mx-auto max-h-[80vh] md:max-h-none ${orientation === "portrait"
                     ? "max-w-sm md:max-w-md aspect-[9/16]"
                     : "max-w-5xl aspect-video"
                     } w-full bg-black/50`}

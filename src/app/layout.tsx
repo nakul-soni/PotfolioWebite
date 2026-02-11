@@ -16,7 +16,7 @@ const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const metadata: Metadata = {
   title: "Nakul Soni | Full-Stack Developer",
-  description: "Advanced portfolio of Nakul Soni, a Full-Stack Developer based in Ahmedabad.",
+  description: "Nakul Soni, a Full-Stack Developer based in Ahmedabad.",
 };
 
 export default function RootLayout({

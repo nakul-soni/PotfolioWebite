@@ -130,56 +130,84 @@ export function Projects() {
 
                             {/* Image Card */}
                             <div className="relative group perspective-1000">
-                                <div className="w-full aspect-video bg-transparent rounded-2xl overflow-visible transition-transform duration-500 border-none">
-                                    {/* Collage Images */}
-                                    <div className="relative w-full h-full perspective-1000 flex items-center justify-center">
-                                        {project.images.map((img, idx) => {
-                                            const isPortrait = (project as any).orientation === "portrait"
+                                <div className="w-full bg-transparent rounded-2xl transition-transform duration-500 border-none">
+                                    {/* Mobile: single, stable image to avoid overlap/clipping */}
+                                    {isMobile ? (() => {
+                                        const isPortrait = (project as any).orientation === "portrait"
+                                        const primaryImage = project.images[0]
 
-                                            // 3D Showcase Logic
-                                            let positionClass = ""
-                                            if (idx === 0) {
-                                                // Left Card
-                                                positionClass = `${isPortrait ? "left-[20%]" : "left-0"} z-20 scale-90 origin-left rotate-y-12 hover:rotate-0 hover:scale-100 hover:z-50`
-                                            } else if (idx === 1) {
-                                                // Center Card
-                                                positionClass = "left-1/2 -translate-x-1/2 z-30 scale-100 hover:scale-110 hover:z-50"
-                                            } else if (idx === 2) {
-                                                // Right Card
-                                                positionClass = `${isPortrait ? "right-[20%]" : "right-0"} z-20 scale-90 origin-right -rotate-y-12 hover:rotate-0 hover:scale-100 hover:z-50`
-                                            } else if (idx === 3) {
-                                                // Between Left and Center
-                                                positionClass = `${isPortrait ? "left-0" : "left-[25%]"} z-[15] scale-[0.88] origin-left rotate-y-8 hover:rotate-0 hover:scale-100 hover:z-50`
-                                            } else if (idx === 4) {
-                                                // Between Center and Right
-                                                positionClass = `${isPortrait ? "right-0" : "right-[25%]"} z-[15] scale-[0.88] origin-right -rotate-y-8 hover:rotate-0 hover:scale-100 hover:z-50`
-                                            } else {
-                                                // Extra cards hidden
-                                                return null
-                                            }
+                                        return (
+                                            <div
+                                                onClick={() => {
+                                                    setLightboxImages(project.images)
+                                                    setLightboxInitialIndex(0)
+                                                    setLightboxOrientation(isPortrait ? "portrait" : "landscape")
+                                                    setLightboxOpen(true)
+                                                }}
+                                                className={`relative mx-auto cursor-zoom-in rounded-xl overflow-hidden shadow-2xl border border-border/50 bg-black/50 ${isPortrait ? "w-[70%] max-w-[280px] aspect-[9/16]" : "w-full aspect-video"}`}
+                                            >
+                                                <Image
+                                                    src={primaryImage}
+                                                    alt={`${project.title} - view 1`}
+                                                    fill
+                                                    sizes="(max-width: 768px) 100vw, 80vw"
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                        )
+                                    })() : (
+                                        <div className="relative w-full aspect-video overflow-visible">
+                                            {/* Collage Images */}
+                                            <div className="relative w-full h-full perspective-1000 flex items-center justify-center">
+                                                {project.images.map((img, idx) => {
+                                                    const isPortrait = (project as any).orientation === "portrait"
 
-                                            return (
-                                                <div
-                                                    key={idx}
-                                                    onClick={() => {
-                                                        setLightboxImages(project.images)
-                                                        setLightboxInitialIndex(idx)
-                                                        setLightboxOrientation(isPortrait ? "portrait" : "landscape")
-                                                        setLightboxOpen(true)
-                                                    }}
-                                                    className={`absolute top-1/2 -translate-y-1/2 transition-all duration-500 ease-out cursor-zoom-in rounded-xl overflow-hidden shadow-2xl border border-border/50 bg-black/50 ${positionClass} ${isPortrait ? "w-[25%] aspect-[9/16]" : "w-[80%] aspect-video"}`}
-                                                >
-                                                    <Image
-                                                        src={img}
-                                                        alt={`${project.title} - view ${idx + 1}`}
-                                                        fill
-                                                        sizes="(max-width: 768px) 25vw, 80vw"
-                                                        className="object-cover"
-                                                    />
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
+                                                    // 3D Showcase Logic
+                                                    let positionClass = ""
+                                                    if (idx === 0) {
+                                                        // Left Card
+                                                        positionClass = `${isPortrait ? "left-[20%]" : "left-0"} z-20 scale-90 origin-left rotate-y-12 hover:rotate-0 hover:scale-100 hover:z-50`
+                                                    } else if (idx === 1) {
+                                                        // Center Card
+                                                        positionClass = "left-1/2 -translate-x-1/2 z-30 scale-100 hover:scale-110 hover:z-50"
+                                                    } else if (idx === 2) {
+                                                        // Right Card
+                                                        positionClass = `${isPortrait ? "right-[20%]" : "right-0"} z-20 scale-90 origin-right -rotate-y-12 hover:rotate-0 hover:scale-100 hover:z-50`
+                                                    } else if (idx === 3) {
+                                                        // Between Left and Center
+                                                        positionClass = `${isPortrait ? "left-0" : "left-[25%]"} z-[15] scale-[0.88] origin-left rotate-y-8 hover:rotate-0 hover:scale-100 hover:z-50`
+                                                    } else if (idx === 4) {
+                                                        // Between Center and Right
+                                                        positionClass = `${isPortrait ? "right-0" : "right-[25%]"} z-[15] scale-[0.88] origin-right -rotate-y-8 hover:rotate-0 hover:scale-100 hover:z-50`
+                                                    } else {
+                                                        // Extra cards hidden
+                                                        return null
+                                                    }
+
+                                                    return (
+                                                        <div
+                                                            key={idx}
+                                                            onClick={() => {
+                                                                setLightboxImages(project.images)
+                                                                setLightboxInitialIndex(idx)
+                                                                setLightboxOrientation(isPortrait ? "portrait" : "landscape")
+                                                                setLightboxOpen(true)
+                                                            }}
+                                                            className={`absolute top-1/2 -translate-y-1/2 transition-all duration-500 ease-out cursor-zoom-in rounded-xl overflow-hidden shadow-2xl border border-border/50 bg-black/50 ${positionClass} ${isPortrait ? "w-[25%] aspect-[9/16]" : "w-[80%] aspect-video"}`}
+                                                        >
+                                                            <Image
+                                                                src={img}
+                                                                alt={`${project.title} - view ${idx + 1}`}
+                                                                fill
+                                                                sizes="(max-width: 768px) 25vw, 80vw"
+                                                                className="object-cover"
+                                                            />
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                                 {/* Background Glow */}
                                 <div className="absolute -inset-10 bg-accent-primary/20 blur-3xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />

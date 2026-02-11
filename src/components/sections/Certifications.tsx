@@ -120,7 +120,7 @@ export function Certifications() {
                         <X className="w-6 h-6 text-white" />
                     </button>
 
-                    <div className="relative max-w-5xl w-full aspect-[4/3] bg-gradient-to-br from-gray-800 to-black rounded-lg overflow-hidden">
+                    <div className="relative max-w-5xl w-full aspect-[4/3] max-h-[85vh] bg-gradient-to-br from-gray-800 to-black rounded-lg overflow-hidden">
                         {/* Certificate Image */}
                         <img
                             src={selectedImage}

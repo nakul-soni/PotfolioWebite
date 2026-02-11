@@ -209,14 +209,14 @@ export function EventsSection() {
                                 : 'event-card'
                                 } flex justify-center`}
                             style={{
-                                width: isMobile && slideWidth ? `${slideWidth}px` : '320px',
+                                width: isMobile && slideWidth ? `${slideWidth}px` : '340px',
                                 position: 'relative'
                             }}
                         >
                             {/* Hanging line from timeline - Desktop only */}
                             <div className="hidden md:block absolute -top-32 left-1/2 -translate-x-1/2 w-0.5 h-24 bg-accent-primary/40" />
 
-                            <div className="w-[85%] max-w-[320px]">
+                            <div className="w-[88%] max-w-[340px]">
                                 <EventCard
                                     event={event}
                                     onCardClick={() => openEventModal(event)}
