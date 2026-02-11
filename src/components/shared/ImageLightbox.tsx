@@ -178,11 +178,11 @@ export function ImageLightbox({
         <div
             ref={overlayRef}
             className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 md:p-10"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', touchAction: 'none' }}
             onClick={handleClose}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+            onTouchStart={(e) => { handleTouchStart(e); e.stopPropagation(); }}
+            onTouchMove={(e) => { handleTouchMove(e); e.stopPropagation(); }}
+            onTouchEnd={(e) => { handleTouchEnd(); e.stopPropagation(); }}
         >
             {/* Close Button */}
             <button
