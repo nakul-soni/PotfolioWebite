@@ -42,7 +42,7 @@ export function EventsSection() {
                 const scrollAmount = getScrollAmount();
                 const scrollDuration = totalCards * 1000;
 
-                // Set initial state for all cards
+                // Set initial state for all cards - DESKTOP ONLY
                 gsap.set(cards, {
                     opacity: 0,
                     scale: 0.9,
@@ -121,8 +121,15 @@ export function EventsSection() {
                 updateWidth();
                 window.addEventListener("resize", updateWidth, { passive: true });
 
-                // Fade & Slide entrance animation
+                // Reset cards to visible state for mobile
                 const cards = gsap.utils.toArray(".event-card-wrapper");
+                gsap.set(cards, {
+                    opacity: 1,
+                    scale: 1,
+                    y: 0
+                });
+
+                // Fade & Slide entrance animation
                 gsap.from(cards, {
                     opacity: 0,
                     y: 30,
@@ -245,8 +252,8 @@ export function EventsSection() {
                             key={idx}
                             onClick={() => setCurrentIndex(idx)}
                             className={`h-2 rounded-full transition-all duration-300 ${idx === currentIndex
-                                    ? 'w-8 bg-accent-primary'
-                                    : 'w-2 bg-muted-foreground/30'
+                                ? 'w-8 bg-accent-primary'
+                                : 'w-2 bg-muted-foreground/30'
                                 }`}
                             aria-label={`Go to event ${idx + 1}`}
                         />

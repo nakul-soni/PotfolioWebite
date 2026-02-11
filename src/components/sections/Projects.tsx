@@ -115,19 +115,21 @@ export function Projects() {
 
             <div
                 ref={wrapperRef}
-                className="h-full w-full flex md:flex md:h-full md:w-[300%] transition-transform duration-500 ease-out will-change-transform gap-4 md:gap-0"
+                className="h-full w-full flex md:flex md:h-full md:w-[300%] transition-transform duration-500 ease-out will-change-transform md:gap-0"
                 style={{
-                    transform: isMobile ? `translateX(calc(-${currentIndex * 85}% + 7.5vw - ${currentIndex * 16}px))` : 'none'
+                    transform: isMobile ? `translateX(-${currentIndex * 100}%)` : 'none',
+                    paddingLeft: isMobile ? '7.5vw' : '0',
+                    paddingRight: isMobile ? '7.5vw' : '0'
                 }}
             >
                 {PROJECTS.map((project, i) => (
                     <div
                         key={i}
                         className={`project-card h-full flex-shrink-0 flex items-center justify-center p-4 pt-20 md:p-20 border-r border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-500 md:opacity-100 md:relative ${isMobile
-                                ? (i === currentIndex
-                                    ? 'w-[85vw] opacity-100 scale-100 relative shadow-2xl shadow-accent-primary/20 border-accent-primary/30'
-                                    : 'w-[85vw] opacity-50 scale-95 relative blur-[1px]')
-                                : 'w-screen opacity-100 relative'
+                            ? (i === currentIndex
+                                ? 'w-[85vw] opacity-100 scale-100 relative shadow-2xl shadow-accent-primary/20 border-accent-primary/30'
+                                : 'w-[85vw] opacity-50 scale-95 relative blur-[1px]')
+                            : 'w-screen opacity-100 relative'
                             }`}
                     >
 
@@ -260,8 +262,8 @@ export function Projects() {
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx)}
                                 className={`h-2 rounded-full transition-all duration-300 ${idx === currentIndex
-                                        ? 'w-8 bg-accent-primary'
-                                        : 'w-2 bg-muted-foreground/30'
+                                    ? 'w-8 bg-accent-primary'
+                                    : 'w-2 bg-muted-foreground/30'
                                     }`}
                                 aria-label={`Go to project ${idx + 1}`}
                             />
