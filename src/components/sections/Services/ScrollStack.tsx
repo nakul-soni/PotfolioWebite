@@ -29,7 +29,7 @@ export const ScrollStack = ({
     useEffect(() => {
         const ctx = gsap.matchMedia();
 
-        // Desktop Animation (Scroll to Stack)
+        // Desktop Animation (Scroll to Stack) - UNCHANGED
         ctx.add("(min-width: 768px)", () => {
             setIsMobile(false);
             if (!containerRef.current || !wrapperRef.current) return;
@@ -55,7 +55,7 @@ export const ScrollStack = ({
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top top",
-                    end: `+=${totalCards * 150}%`, // Scroll distance
+                    end: `+=${totalCards * 150}%`,
                     pin: true,
                     scrub: 1,
                     anticipatePin: 1
@@ -68,12 +68,12 @@ export const ScrollStack = ({
             // Animate each card to the left stack
             cards.forEach((card, index) => {
                 tl.to(card, {
-                    xPercent: -120, // Slide completely to left
-                    y: index * 4,   // Compact vertical stack
-                    rotation: -2 + (index * 1), // Very subtle rotation
-                    scale: 0.85,     // Shrink
-                    zIndex: index,   // Reorder z-index visually if needed
-                    opacity: 1,      // Keep fully visible
+                    xPercent: -120,
+                    y: index * 4,
+                    rotation: -2 + (index * 1),
+                    scale: 0.85,
+                    zIndex: index,
+                    opacity: 1,
                     boxShadow: "-5px 5px 20px rgba(0,0,0,0.5)",
                     duration: 1,
                     ease: "power2.inOut"
@@ -81,7 +81,7 @@ export const ScrollStack = ({
             });
         });
 
-        // Mobile Cleanup (Reset styles)
+        // Mobile: Horizontal Grid with Fade & Slide Animation (NEW)
         ctx.add("(max-width: 767px)", () => {
             setIsMobile(true);
             const cards = cardsRef.current.filter(Boolean);
@@ -89,14 +89,19 @@ export const ScrollStack = ({
             if (wrapperRef.current) gsap.set(wrapperRef.current, { clearProps: "all" });
             if (containerRef.current) gsap.set(containerRef.current, { clearProps: "all" });
 
-            // Subtle mobile entrance animations
+            // Fade & Slide entrance animation
             gsap.from(cards, {
                 opacity: 0,
-                y: 18,
-                scale: 0.98,
-                stagger: 0.08,
+                y: 30,
+                scale: 0.95,
+                stagger: 0.1,
                 duration: 0.6,
-                ease: "power2.out"
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: containerRef.current,
+                    start: "top 80%",
+                    toggleActions: "play none none reverse"
+                }
             });
         });
 
@@ -117,11 +122,15 @@ export const ScrollStack = ({
         const diff = touchStartX.current - touchEndX.current;
 
         if (Math.abs(diff) > swipeThreshold) {
-            if (diff > 0 && currentIndex < items.length - 1) {
-                // Swipe left - next service
+            // Calculate how many columns to show at once (2 columns per page)
+            const itemsPerPage = 2;
+            const maxPage = Math.ceil(items.length / itemsPerPage) - 1;
+
+            if (diff > 0 && currentIndex < maxPage) {
+                // Swipe left - next page
                 setCurrentIndex(prev => prev + 1);
             } else if (diff < 0 && currentIndex > 0) {
-                // Swipe right - previous service
+                // Swipe right - previous page
                 setCurrentIndex(prev => prev - 1);
             }
         }
@@ -136,22 +145,15 @@ export const ScrollStack = ({
             onTouchEnd={handleTouchEnd}
         >
 
-            {/* 
-              Responsive Wrapper:
-              Desktop: Relative container for absolute cards (handled by GSAP)
-              Mobile: Horizontal swipe carousel
-            */}
-            {/* 
-              Responsive Wrapper:
-              Desktop: Relative container for absolute cards (handled by GSAP)
-              Mobile: Horizontal swipe carousel with translate
-            */}
+            {/* Desktop: Stacking animation wrapper */}
+            {/* Mobile: Horizontal scroll grid with 2 rows */}
             <div
                 ref={wrapperRef}
                 className="
                     w-full max-w-2xl 
                     md:relative md:h-[90vh] md:aspect-video md:flex md:items-center md:justify-center
-                    flex flex-row h-auto aspect-auto transition-transform duration-500 ease-out
+                    flex flex-row flex-wrap h-auto aspect-auto transition-transform duration-500 ease-out overflow-x-auto md:overflow-visible
+                    snap-x snap-mandatory md:snap-none
                 "
                 style={{
                     transform: isMobile ? `translateX(-${currentIndex * 100}%)` : 'none'
@@ -166,16 +168,14 @@ export const ScrollStack = ({
                             ref={(el: any) => (cardsRef.current[index] = el)}
                             className={`
                                 md:absolute md:top-0 md:left-0 md:w-full md:h-full 
-                                relative w-full flex-shrink-0 h-auto
+                                relative w-1/2 flex-shrink-0 h-auto snap-start
                                 opacity-100 scale-100 md:opacity-100 md:scale-100
                             `}
                             style={{
-                                // Initially set zIndex for Desktop logic (GSAP matchMedia will override if needed, or CSS handles it)
-                                // We use style for zIndex to help the initial render
                                 zIndex: reverseIndex,
                             }}
                         >
-                            <div className="w-full h-full flex items-center justify-center p-4">
+                            <div className="w-full h-full flex items-center justify-center p-2 md:p-4">
                                 {item.children}
                             </div>
                         </div>
@@ -183,26 +183,41 @@ export const ScrollStack = ({
                 })}
             </div>
 
+            {/* Pagination Dots - Mobile Only */}
+            {isMobile && (
+                <div className="md:hidden absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                    {Array.from({ length: Math.ceil(items.length / 2) }).map((_, idx) => (
+                        <button
+                            key={idx}
+                            onClick={() => setCurrentIndex(idx)}
+                            className={`h-2 rounded-full transition-all duration-300 ${idx === currentIndex
+                                    ? 'w-8 bg-accent-primary'
+                                    : 'w-2 bg-muted-foreground/30'
+                                }`}
+                            aria-label={`Go to page ${idx + 1}`}
+                        />
+                    ))}
+                </div>
+            )}
+
             {/* Swipe Indicators - Mobile Only */}
             <>
                 {/* Left Arrow */}
                 {currentIndex > 0 && (
-                    <div className="md:hidden absolute left-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
-                        <div className="flex items-center gap-2 text-muted-foreground/60">
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="md:hidden absolute left-2 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
+                        <div className="flex items-center gap-1 text-muted-foreground/60">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                             </svg>
-                            <span className="text-xs font-medium">Swipe</span>
                         </div>
                     </div>
                 )}
 
                 {/* Right Arrow */}
-                {currentIndex < items.length - 1 && (
-                    <div className="md:hidden absolute right-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
-                        <div className="flex items-center gap-2 text-muted-foreground/60">
-                            <span className="text-xs font-medium">Swipe</span>
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {currentIndex < Math.ceil(items.length / 2) - 1 && (
+                    <div className="md:hidden absolute right-2 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
+                        <div className="flex items-center gap-1 text-muted-foreground/60">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                         </div>

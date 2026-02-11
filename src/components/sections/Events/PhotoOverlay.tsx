@@ -13,12 +13,15 @@ interface PhotoOverlayProps {
 export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const overlayRef = useRef<HTMLDivElement>(null);
+    const sheetRef = useRef<HTMLDivElement>(null);
 
     // Touch gesture refs for swipe navigation
     const touchStartX = useRef(0)
     const touchEndX = useRef(0)
     const touchStartY = useRef(0)
     const touchEndY = useRef(0)
+    const dragStartY = useRef(0)
+    const isDragging = useRef(false)
 
     useEffect(() => {
         if (isOpen && event) {
@@ -32,9 +35,11 @@ export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
                 { opacity: 0 },
                 { opacity: 1, duration: 0.3 }
             );
-            gsap.fromTo(".overlay-content",
-                { scale: 0.95, opacity: 0, y: 20 },
-                { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.2)", delay: 0.1 }
+
+            // Bottom sheet slide up animation
+            gsap.fromTo(sheetRef.current,
+                { y: '100%' },
+                { y: '0%', duration: 0.4, ease: "power2.out" }
             );
 
             // Lock body scroll
@@ -86,21 +91,31 @@ export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
     };
 
     const handleClose = () => {
-        gsap.to(overlayRef.current, { opacity: 0, duration: 0.3, onComplete: onClose });
+        // Slide down animation
+        gsap.to(sheetRef.current, {
+            y: '100%',
+            duration: 0.3,
+            ease: "power2.in"
+        });
+        gsap.to(overlayRef.current, {
+            opacity: 0,
+            duration: 0.3,
+            onComplete: onClose
+        });
     };
 
-    // Touch handlers for swipe gestures
-    const handleTouchStart = (e: React.TouchEvent) => {
+    // Touch handlers for photo swipe gestures
+    const handlePhotoTouchStart = (e: React.TouchEvent) => {
         touchStartX.current = e.touches[0].clientX
         touchStartY.current = e.touches[0].clientY
     }
 
-    const handleTouchMove = (e: React.TouchEvent) => {
+    const handlePhotoTouchMove = (e: React.TouchEvent) => {
         touchEndX.current = e.touches[0].clientX
         touchEndY.current = e.touches[0].clientY
     }
 
-    const handleTouchEnd = () => {
+    const handlePhotoTouchEnd = () => {
         const swipeThreshold = 50
         const diffX = touchStartX.current - touchEndX.current
         const diffY = Math.abs(touchStartY.current - touchEndY.current)
@@ -113,6 +128,45 @@ export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
             } else {
                 // Swipe right - previous photo
                 changePhoto('prev')
+            }
+        }
+    }
+
+    // Touch handlers for sheet drag to dismiss
+    const handleSheetTouchStart = (e: React.TouchEvent) => {
+        dragStartY.current = e.touches[0].clientY
+        isDragging.current = true
+    }
+
+    const handleSheetTouchMove = (e: React.TouchEvent) => {
+        if (!isDragging.current) return
+        const currentY = e.touches[0].clientY
+        const diff = currentY - dragStartY.current
+
+        // Only allow dragging down
+        if (diff > 0 && sheetRef.current) {
+            sheetRef.current.style.transform = `translateY(${diff}px)`
+        }
+    }
+
+    const handleSheetTouchEnd = (e: React.TouchEvent) => {
+        if (!isDragging.current) return
+        isDragging.current = false
+
+        const currentY = e.changedTouches[0].clientY
+        const diff = currentY - dragStartY.current
+
+        // If dragged down more than 100px, close the sheet
+        if (diff > 100) {
+            handleClose()
+        } else {
+            // Snap back to position
+            if (sheetRef.current) {
+                gsap.to(sheetRef.current, {
+                    y: 0,
+                    duration: 0.3,
+                    ease: "power2.out"
+                })
             }
         }
     }
@@ -136,24 +190,33 @@ export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
     return (
         <div
             ref={overlayRef}
-            className="fixed inset-0 z-[999999] bg-black/95 flex items-center justify-center backdrop-blur-md opacity-0"
+            className="fixed inset-0 z-[999999] bg-black/95 flex items-end md:items-center justify-center backdrop-blur-md opacity-0"
             onClick={handleClose}
         >
             {/* Close Button */}
             <button
                 onClick={handleClose}
-                className="absolute top-20 right-4 md:top-8 md:right-8 z-50 p-2 rounded-full bg-background/20 backdrop-blur-md hover:bg-background/40 transition-colors text-white border border-white/10 group"
+                className="absolute top-4 right-4 md:top-8 md:right-8 z-50 p-2 rounded-full bg-background/20 backdrop-blur-md hover:bg-background/40 transition-colors text-white border border-white/10 group"
             >
                 <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
             </button>
 
-            {/* Main Content Container - Like a Post */}
+            {/* Bottom Sheet - Mobile / Modal - Desktop */}
             <div
-                className="overlay-content relative w-[95vw] md:w-[90vw] lg:w-[70vw] max-h-[90vh] bg-card rounded-2xl overflow-hidden shadow-2xl"
+                ref={sheetRef}
+                className="relative w-full md:w-[90vw] lg:w-[70vw] h-[85vh] md:h-auto md:max-h-[90vh] bg-card rounded-t-3xl md:rounded-2xl overflow-hidden shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
+                onTouchStart={handleSheetTouchStart}
+                onTouchMove={handleSheetTouchMove}
+                onTouchEnd={handleSheetTouchEnd}
             >
+                {/* Drag Handle - Mobile Only */}
+                <div className="md:hidden sticky top-0 z-10 bg-card/95 backdrop-blur-sm py-3 flex justify-center">
+                    <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+                </div>
+
                 {/* Scrollable Container */}
-                <div className="overflow-y-auto max-h-[90vh] custom-scrollbar">
+                <div className="overflow-y-auto h-full custom-scrollbar">
 
                     {/* Event Header */}
                     <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b border-border p-4 md:p-6">
@@ -173,9 +236,9 @@ export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
                     {/* Image Gallery Section */}
                     <div
                         className="relative bg-black"
-                        onTouchStart={handleTouchStart}
-                        onTouchMove={handleTouchMove}
-                        onTouchEnd={handleTouchEnd}
+                        onTouchStart={handlePhotoTouchStart}
+                        onTouchMove={handlePhotoTouchMove}
+                        onTouchEnd={handlePhotoTouchEnd}
                     >
                         {/* Photo Counter */}
                         <div className="absolute top-4 left-4 z-20 bg-black/60 backdrop-blur-sm text-white px-3 py-2 rounded-full text-sm font-mono">
@@ -201,12 +264,29 @@ export function PhotoOverlay({ isOpen, onClose, event }: PhotoOverlayProps) {
                             </>
                         )}
 
+                        {/* Pagination Dots */}
+                        {photos.length > 1 && (
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                                {photos.map((_, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={(e) => { e.stopPropagation(); setCurrentIndex(idx); }}
+                                        className={`h-2 rounded-full transition-all duration-300 ${idx === currentIndex
+                                                ? 'w-8 bg-accent-primary'
+                                                : 'w-2 bg-white/30'
+                                            }`}
+                                        aria-label={`Go to photo ${idx + 1}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
                         {/* Main Image */}
-                        <div className="relative w-full max-h-[70vh] flex items-center justify-center bg-black">
+                        <div className="relative w-full h-[40vh] md:h-[60vh] flex items-center justify-center bg-black">
                             <img
                                 src={photos[currentIndex]}
                                 alt={`${event.title} - Photo ${currentIndex + 1}`}
-                                className="overlay-image w-full h-full max-h-[70vh] object-contain"
+                                className="overlay-image w-full h-full object-contain"
                             />
                         </div>
                     </div>

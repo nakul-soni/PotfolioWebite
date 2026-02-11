@@ -26,7 +26,7 @@ export function Projects() {
         const ctx = gsap.context(() => {
             const mm = gsap.matchMedia()
 
-            // Desktop: Horizontal scroll animation
+            // Desktop: Horizontal scroll animation (UNCHANGED)
             mm.add("(min-width: 768px)", () => {
                 const sections = gsap.utils.toArray(".project-card")
 
@@ -40,19 +40,23 @@ export function Projects() {
                         anticipatePin: 1,
                         scrub: 0.5,
                         snap: 1 / (sections.length - 1),
-                        // base vertical scrolling on how many cards * width
                         end: () => "+=" + (containerRef.current?.offsetWidth || 0) * (sections.length - 1)
                     }
                 })
             })
 
-            // Mobile: Simple fade-in animation
+            // Mobile: Carousel peek with fade & slide animation (NEW)
             mm.add("(max-width: 767px)", () => {
                 setIsMobile(true)
+
+                // Fade & Slide entrance animation
                 gsap.from(".project-card", {
                     opacity: 0,
-                    y: 50,
-                    duration: 0.8,
+                    y: 30,
+                    scale: 0.95,
+                    duration: 0.6,
+                    ease: "power2.out",
+                    stagger: 0.1,
                     scrollTrigger: {
                         trigger: containerRef.current,
                         start: "top 80%",
@@ -111,18 +115,19 @@ export function Projects() {
 
             <div
                 ref={wrapperRef}
-                className="h-full w-full flex md:flex md:h-full md:w-[300%] transition-transform duration-500 ease-out will-change-transform"
+                className="h-full w-full flex md:flex md:h-full md:w-[300%] transition-transform duration-500 ease-out will-change-transform gap-4 md:gap-0"
                 style={{
-                    transform: isMobile ? `translateX(-${currentIndex * 100}%)` : 'none'
+                    transform: isMobile ? `translateX(calc(-${currentIndex * 85}% + 7.5vw - ${currentIndex * 16}px))` : 'none'
                 }}
             >
                 {PROJECTS.map((project, i) => (
                     <div
                         key={i}
-                        className={`project-card w-full md:w-screen h-full flex-shrink-0 flex items-center justify-center p-4 pt-20 md:p-20 border-r border-border/50 bg-background/50 backdrop-blur-sm transition-opacity duration-500 md:opacity-100 md:relative ${
-                            // On mobile, all cards are "visible" in the flow, but only one is in view due to overflow hidden + translate
-                            // On desktop, we keep the original logic if needed, but the wrapper is what matters for mobile
-                            'opacity-100 relative'
+                        className={`project-card h-full flex-shrink-0 flex items-center justify-center p-4 pt-20 md:p-20 border-r border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-500 md:opacity-100 md:relative ${isMobile
+                                ? (i === currentIndex
+                                    ? 'w-[85vw] opacity-100 scale-100 relative shadow-2xl shadow-accent-primary/20 border-accent-primary/30'
+                                    : 'w-[85vw] opacity-50 scale-95 relative blur-[1px]')
+                                : 'w-screen opacity-100 relative'
                             }`}
                     >
 
@@ -247,6 +252,23 @@ export function Projects() {
 
             {/* Swipe Indicators - Mobile Only */}
             <>
+                {/* Pagination Dots */}
+                {isMobile && (
+                    <div className="md:hidden absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                        {PROJECTS.map((_, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => setCurrentIndex(idx)}
+                                className={`h-2 rounded-full transition-all duration-300 ${idx === currentIndex
+                                        ? 'w-8 bg-accent-primary'
+                                        : 'w-2 bg-muted-foreground/30'
+                                    }`}
+                                aria-label={`Go to project ${idx + 1}`}
+                            />
+                        ))}
+                    </div>
+                )}
+
                 {/* Left Arrow */}
                 {currentIndex > 0 && (
                     <div className="md:hidden absolute left-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none">

@@ -26,7 +26,7 @@ export function EventsSection() {
         const ctx = gsap.context(() => {
             const mm = gsap.matchMedia();
 
-            // Desktop: Keep existing scroll animation with timeline
+            // Desktop: Keep existing scroll animation with timeline (UNCHANGED)
             mm.add("(min-width: 768px)", () => {
                 setIsMobile(false);
                 const cards = gsap.utils.toArray(".event-card");
@@ -112,7 +112,7 @@ export function EventsSection() {
                 }
             });
 
-            // Mobile: No scroll animation - simple swipe carousel
+            // Mobile: Timeline carousel with fade & slide (ENHANCED)
             mm.add("(max-width: 767px)", () => {
                 setIsMobile(true);
                 const updateWidth = () => {
@@ -120,14 +120,21 @@ export function EventsSection() {
                 };
                 updateWidth();
                 window.addEventListener("resize", updateWidth, { passive: true });
-                // Subtle mobile entrance animations
+
+                // Fade & Slide entrance animation
                 const cards = gsap.utils.toArray(".event-card-wrapper");
                 gsap.from(cards, {
                     opacity: 0,
-                    y: 20,
-                    stagger: 0.08,
+                    y: 30,
+                    scale: 0.95,
+                    stagger: 0.1,
                     duration: 0.6,
-                    ease: "power2.out"
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        start: "top 80%",
+                        toggleActions: "play none none reverse"
+                    }
                 });
 
                 return () => {
@@ -229,6 +236,23 @@ export function EventsSection() {
                     <div className="hidden md:block w-[30vw] shrink-0" />
                 </div>
             </div>
+
+            {/* Pagination Dots - Mobile Only */}
+            {isMobile && (
+                <div className="md:hidden absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                    {EVENTS_DATA.map((_, idx) => (
+                        <button
+                            key={idx}
+                            onClick={() => setCurrentIndex(idx)}
+                            className={`h-2 rounded-full transition-all duration-300 ${idx === currentIndex
+                                    ? 'w-8 bg-accent-primary'
+                                    : 'w-2 bg-muted-foreground/30'
+                                }`}
+                            aria-label={`Go to event ${idx + 1}`}
+                        />
+                    ))}
+                </div>
+            )}
 
             {/* Swipe Indicators - Mobile Only */}
             <>

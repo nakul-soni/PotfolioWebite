@@ -28,24 +28,50 @@ export function Certifications() {
 
     useEffect(() => {
         const ctx = gsap.context(() => {
-            // Set initial state
-            gsap.set(".cert-item", {
-                opacity: 0,
-                y: 50
+            const mm = gsap.matchMedia();
+
+            // Desktop: Fade & slide animation (UNCHANGED)
+            mm.add("(min-width: 768px)", () => {
+                gsap.set(".cert-item", {
+                    opacity: 0,
+                    y: 50
+                });
+
+                gsap.to(".cert-item", {
+                    y: 0,
+                    opacity: 1,
+                    stagger: 0.1,
+                    duration: 0.6,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        start: "top 75%",
+                        toggleActions: "play none none none"
+                    }
+                });
             });
 
-            // Animate on scroll
-            gsap.to(".cert-item", {
-                y: 0,
-                opacity: 1,
-                stagger: 0.1,
-                duration: 0.6,
-                ease: "power2.out",
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    start: "top 75%",
-                    toggleActions: "play none none none"
-                }
+            // Mobile: Blur Morph animation (NEW)
+            mm.add("(max-width: 767px)", () => {
+                gsap.set(".cert-item", {
+                    opacity: 0,
+                    scale: 0.9,
+                    filter: "blur(10px)"
+                });
+
+                gsap.to(".cert-item", {
+                    opacity: 1,
+                    scale: 1,
+                    filter: "blur(0px)",
+                    stagger: 0.15,
+                    duration: 0.5,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        start: "top 80%",
+                        toggleActions: "play none none reverse"
+                    }
+                });
             });
         }, containerRef);
         return () => ctx.revert();
@@ -57,8 +83,10 @@ export function Certifications() {
                 <div className="container mx-auto px-4">
                     <h2 className="text-4xl font-bold mb-12 text-center">Achievements</h2>
 
+                    {/* Desktop: Grid layout / Mobile: Vertical stack */}
                     <div className="
                         grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 
+                        md:grid md:grid-cols-2 lg:grid-cols-3
                         px-4 md:px-0
                     ">
                         {items.map((item, i) => (

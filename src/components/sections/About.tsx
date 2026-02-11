@@ -9,6 +9,7 @@ import Image from "next/image"
 export function About() {
     const containerRef = useRef<HTMLDivElement>(null)
     const statsRef = useRef<HTMLDivElement>(null)
+    const photoRef = useRef<HTMLDivElement>(null)
     const isTypewriterStarted = useRef(false)
     const [displayText, setDisplayText] = useState("")
 
@@ -22,7 +23,7 @@ export function About() {
         const ctx = gsap.context(() => {
             const mm = gsap.matchMedia()
 
-            // Photo Parallax - Desktop only
+            // Photo Parallax - Desktop only (UNCHANGED)
             mm.add("(min-width: 768px)", () => {
                 gsap.to(".about-photo", {
                     y: -50,
@@ -31,6 +32,21 @@ export function About() {
                         start: "top center",
                         end: "bottom top",
                         scrub: 1
+                    }
+                })
+            })
+
+            // Photo entrance - Mobile only (NEW)
+            mm.add("(max-width: 767px)", () => {
+                gsap.from(photoRef.current, {
+                    opacity: 0,
+                    scale: 0.9,
+                    duration: 0.6,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        start: "top 80%",
+                        toggleActions: "play none none reverse"
                     }
                 })
             })
@@ -77,7 +93,7 @@ export function About() {
                 <div className="grid grid-cols-1 md:grid-cols-[25%_35%_30%] justify-center gap-6 items-center min-h-[60vh]">
 
                     {/* Left Column: Photo */}
-                    <div className="relative group about-photo flex justify-center md:justify-start">
+                    <div ref={photoRef} className="relative group about-photo flex justify-center md:justify-start">
                         <div className="relative w-full max-w-[320px] aspect-square rounded-2xl overflow-hidden border-2 border-border shadow-2xl transition-all duration-500 group-hover:scale-105 group-hover:border-accent-primary/50">
                             <Image
                                 src="/projects/MyPhoto/Myphoto.jpeg"
@@ -105,13 +121,13 @@ export function About() {
                                 </p>
                             ))}
                         </div>
-                        <svg className="w-24 h-2 mt-4 text-accent-secondary" viewBox="0 0 100 2">
+                        <svg className="w-24 h-2 mt-4 mx-auto md:mx-0 text-accent-secondary" viewBox="0 0 100 2">
                             <line x1="0" y1="1" x2="100" y2="1" stroke="currentColor" strokeWidth="2" strokeDasharray="100" strokeDashoffset="0" className="animate-draw" />
                         </svg>
                     </div>
 
                     {/* Right Column: Stats */}
-                    <div ref={statsRef} className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
+                    <div ref={statsRef} className="grid grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
                         {PERSONAL_INFO.stats.map((stat, idx) => (
                             <div key={idx} className="bg-card p-3 md:p-5 rounded-xl border border-border hover:border-accent-primary/50 transition-colors group min-w-0 flex flex-col justify-center">
                                 <div className="text-xl md:text-2xl font-bold group-hover:text-accent-primary transition-colors whitespace-nowrap">
