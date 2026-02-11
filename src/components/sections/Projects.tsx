@@ -80,6 +80,7 @@ export function Projects() {
     // Touch swipe handlers for mobile
     const handleTouchStart = (e: React.TouchEvent) => {
         touchStartX.current = e.touches[0].clientX
+        touchEndX.current = e.touches[0].clientX // Initialize to same value to prevent accidental swipes
     }
 
     const handleTouchMove = (e: React.TouchEvent) => {
