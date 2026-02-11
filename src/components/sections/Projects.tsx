@@ -38,8 +38,12 @@ export function Projects() {
                         pin: true,
                         pinSpacing: true,
                         anticipatePin: 1,
-                        scrub: 0.5,
-                        snap: 1 / (sections.length - 1),
+                        scrub: 0.3,
+                        snap: {
+                            snapTo: 1 / (sections.length - 1),
+                            duration: { min: 0.2, max: 0.4 },
+                            ease: "power1.inOut"
+                        },
                         end: () => "+=" + (containerRef.current?.offsetWidth || 0) * (sections.length - 1)
                     }
                 })
@@ -127,11 +131,11 @@ export function Projects() {
                 {PROJECTS.map((project, i) => (
                     <div
                         key={i}
-                        className={`project-card h-full flex-shrink-0 flex items-center justify-center p-4 pt-20 md:p-20 border-r border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-500 ${isMobile
-                            ? (i === currentIndex
+                        className={`project-card h-full flex-shrink-0 flex items-center justify-center p-4 pt-20 md:p-20 border-r border-border/50 bg-background/50 backdrop-blur-sm ${isMobile
+                            ? `transition-all duration-500 ${i === currentIndex
                                 ? 'w-screen opacity-100 scale-100 relative'
-                                : 'w-screen opacity-50 scale-95 relative')
-                            : 'w-screen opacity-100 relative md:opacity-100 md:relative'
+                                : 'w-screen opacity-50 scale-95 relative'}`
+                            : 'w-screen opacity-100 relative md:shadow-lg md:shadow-black/10 md:hover:shadow-xl md:hover:shadow-accent-primary/20 md:transition-shadow md:duration-300'
                             }`}
                     >
 

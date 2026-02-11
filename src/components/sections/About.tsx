@@ -23,8 +23,18 @@ export function About() {
         const ctx = gsap.context(() => {
             const mm = gsap.matchMedia()
 
-            // Photo Parallax - Desktop only (UNCHANGED)
+            // Photo 3D Tilt \u0026 Parallax - Desktop only (ENHANCED)
             mm.add("(min-width: 768px)", () => {
+                const photo = photoRef.current
+                if (!photo) return
+
+                // Set 3D transform properties
+                gsap.set(photo, {
+                    transformStyle: "preserve-3d",
+                    transformPerspective: 1000
+                })
+
+                // Parallax scroll effect
                 gsap.to(".about-photo", {
                     y: -50,
                     scrollTrigger: {
@@ -34,6 +44,42 @@ export function About() {
                         scrub: 1
                     }
                 })
+
+                // Mouse move 3D tilt effect
+                const handleMouseMove = (e: MouseEvent) => {
+                    if (!photo) return
+                    const rect = photo.getBoundingClientRect()
+                    const x = e.clientX - rect.left
+                    const y = e.clientY - rect.top
+                    const centerX = rect.width / 2
+                    const centerY = rect.height / 2
+                    const rotateX = ((y - centerY) / centerY) * -10 // Max 10deg tilt
+                    const rotateY = ((x - centerX) / centerX) * 10
+
+                    gsap.to(photo, {
+                        rotateX,
+                        rotateY,
+                        duration: 0.5,
+                        ease: "power2.out"
+                    })
+                }
+
+                const handleMouseLeave = () => {
+                    gsap.to(photo, {
+                        rotateX: 0,
+                        rotateY: 0,
+                        duration: 0.5,
+                        ease: "power2.out"
+                    })
+                }
+
+                photo.addEventListener("mousemove", handleMouseMove)
+                photo.addEventListener("mouseleave", handleMouseLeave)
+
+                return () => {
+                    photo.removeEventListener("mousemove", handleMouseMove)
+                    photo.removeEventListener("mouseleave", handleMouseLeave)
+                }
             })
 
             // Photo entrance - Mobile only (NEW)
