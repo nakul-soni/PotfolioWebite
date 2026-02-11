@@ -117,7 +117,7 @@ export function Projects() {
                 ref={wrapperRef}
                 className="h-full w-full flex md:flex md:h-full md:w-[300%] transition-transform duration-500 ease-out will-change-transform md:gap-0"
                 style={{
-                    transform: isMobile ? `translateX(-${currentIndex * 100}%)` : 'none',
+                    transform: isMobile ? `translateX(calc(-${currentIndex} * (85vw + 32px)))` : 'none',
                     paddingLeft: isMobile ? '7.5vw' : '0',
                     paddingRight: isMobile ? '7.5vw' : '0'
                 }}
