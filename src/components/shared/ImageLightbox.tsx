@@ -177,8 +177,15 @@ export function ImageLightbox({
     return (
         <div
             ref={overlayRef}
-            className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 md:p-10"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', touchAction: 'none' }}
+            className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md"
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                touchAction: 'none',
+                minHeight: '100vh',
+                minWidth: '100vw'
+            }}
             onClick={handleClose}
             onTouchStart={(e) => { handleTouchStart(e); e.stopPropagation(); }}
             onTouchMove={(e) => { handleTouchMove(e); e.stopPropagation(); }}
@@ -235,21 +242,27 @@ export function ImageLightbox({
             {/* Image Container */}
             <div
                 ref={imageRef}
-                className={`relative shadow-2xl rounded-lg overflow-hidden border-2 border-white/20 mx-auto max-h-[80vh] md:max-h-none ${orientation === "portrait"
-                    ? "max-w-sm md:max-w-md aspect-[9/16]"
-                    : "max-w-5xl aspect-video"
-                    } w-full bg-black/50`}
+                className={`relative shadow-2xl rounded-lg overflow-hidden border-2 border-white/20 ${orientation === "portrait"
+                    ? "w-[90vw] max-w-sm md:max-w-md h-[80vh] md:h-[85vh]"
+                    : "w-[90vw] max-w-5xl h-[70vh] md:h-[80vh]"
+                    } bg-black/50`}
                 onClick={(e) => e.stopPropagation()}
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}
             >
                 {images[currentIndex] && (
                     <Image
+                        key={`lightbox-${currentIndex}-${images[currentIndex]}`}
                         src={images[currentIndex]}
                         alt={`Image ${currentIndex + 1} of ${images.length}`}
                         fill
-                        sizes="(max-width: 768px) 100vw, 1200px"
-                        className="object-contain"
                         priority
                         unoptimized
+                        sizes="(max-width: 768px) 90vw, 1200px"
+                        className="object-contain"
                     />
                 )}
 
