@@ -49,7 +49,14 @@ export function Projects() {
             mm.add("(max-width: 767px)", () => {
                 setIsMobile(true)
 
-                // Fade & Slide entrance animation
+                // Ensure cards are visible first
+                gsap.set(".project-card", {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1
+                })
+
+                // Optional: Fade & Slide entrance animation (plays immediately)
                 gsap.from(".project-card", {
                     opacity: 0,
                     y: 30,
@@ -57,11 +64,7 @@ export function Projects() {
                     duration: 0.6,
                     ease: "power2.out",
                     stagger: 0.1,
-                    scrollTrigger: {
-                        trigger: containerRef.current,
-                        start: "top 80%",
-                        toggleActions: "play none none reverse"
-                    }
+                    delay: 0.2
                 })
             })
 
@@ -117,19 +120,17 @@ export function Projects() {
                 ref={wrapperRef}
                 className="h-full w-full flex md:flex md:h-full md:w-[300%] transition-transform duration-500 ease-out will-change-transform md:gap-0"
                 style={{
-                    transform: isMobile ? `translateX(calc(-${currentIndex} * (85vw + 32px)))` : 'none',
-                    paddingLeft: isMobile ? '7.5vw' : '0',
-                    paddingRight: isMobile ? '7.5vw' : '0'
+                    transform: isMobile ? `translateX(-${currentIndex * 100}vw)` : 'none'
                 }}
             >
                 {PROJECTS.map((project, i) => (
                     <div
                         key={i}
-                        className={`project-card h-full flex-shrink-0 flex items-center justify-center p-4 pt-20 md:p-20 border-r border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-500 md:opacity-100 md:relative ${isMobile
+                        className={`project-card h-full flex-shrink-0 flex items-center justify-center p-4 pt-20 md:p-20 border-r border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-500 ${isMobile
                             ? (i === currentIndex
-                                ? 'w-[85vw] opacity-100 scale-100 relative shadow-2xl shadow-accent-primary/20 border-accent-primary/30'
-                                : 'w-[85vw] opacity-50 scale-95 relative blur-[1px]')
-                            : 'w-screen opacity-100 relative'
+                                ? 'w-screen opacity-100 scale-100 relative'
+                                : 'w-screen opacity-50 scale-95 relative')
+                            : 'w-screen opacity-100 relative md:opacity-100 md:relative'
                             }`}
                     >
 
