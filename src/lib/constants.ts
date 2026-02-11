@@ -46,14 +46,14 @@ export const PROJECTS = [
         title: "Cyber Pulse",
         description: "Next-generation threat monitoring powered by AI. Real-time analysis of global cyber security incidents.",
         tech: ["Next.js", "React", "TypeScript", "Tailwind", "PostgreSQL"],
-        images: ["/projects/CyberPulsePhoto2.png", "/projects/CyberPulsePhoto1.png", "/projects/CyberPulsePhoto3.png"],
+        images: ["/projects/CyberPulsePhoto1.png", "/projects/CyberPulsePhoto2.png", "/projects/CyberPulsePhoto3.png"],
         link: "https://github.com/nakul-soni/CyberPulse"
     },
     {
         title: "TravelAgent AI - Premium Travel Architect",
         description: "AI-powered travel planner for budget-constrained, day-wise itinerary generation.",
         tech: ["React", "TypeScript", "Tailwind", "Multi Agent AI"],
-        images: ["/projects/TravelAgentPhoto2.png", "/projects/TravelAgentPhoto.png", "/projects/TravelAgentPhoto3.png"],
+        images: ["/projects/TravelAgentPhoto.png", "/projects/TravelAgentPhoto2.png", "/projects/TravelAgentPhoto3.png"],
         link: "https://github.com/nakul-soni/TravelAgent-AI"
     },
     {
